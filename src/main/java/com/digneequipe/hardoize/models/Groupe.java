@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "groupes")
 @Table(name = "groupes_pdv")
 @Data
 @NoArgsConstructor
