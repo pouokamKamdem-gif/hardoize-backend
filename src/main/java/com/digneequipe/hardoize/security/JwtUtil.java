@@ -11,11 +11,15 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    @Value("${jwt.secret:${JWT_SECRET:HardoizeSecretKey2025DigneequipeVendeurGestionCommerciale}}")
+    private String secret;
 
     @Value("${jwt.expiration}")
+    @Value("${jwt.expiration:${JWT_EXCEPTION:86400000}}")
     private Long expiration;
 
     @Value("${jwt.refresh-expiration}")
+    @Value("${jwt.refresh-expiration:${JWT_REFRESH_EXPIRATION:604800000}}")
     private Long refreshExpiration;
 
     private Key getKey() {
