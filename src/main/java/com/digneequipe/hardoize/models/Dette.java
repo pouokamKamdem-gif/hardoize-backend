@@ -1,0 +1,78 @@
+
+package com.digneequipe.hardoize.models;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "dettes")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Dette {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id", nullable = false)
+    private Client client;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vente_id")
+    private Vente vente;
+
+    @NotNull
+    @Positive
+    @Column(nullable = false)
+    private Double montantTotal;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Double montantRembourse = 0.0;
+
+    @NotNull
+    @Column(nullable = false)
+    private LocalDateTime dateRemboursement;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private String statut = "en_attente"; // "en_attente" | "soldee" | "en_retard"
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "utilisateur_id")
+    private Utilisateur utilisateur;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "groupe_id")
+    private Groupe groupe;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean syncEnAttente = false;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
+    @Transient
+    public Double getMontantRestant() {
+        return montantTotal - montantRembourse;
+    }
+
+    @Transient
+    public boolean estEnRetard() {
+        return !statut.equals("soldee") &&
+                LocalDateTime.now().isAfter(dateRemboursement);
+    }
+}
