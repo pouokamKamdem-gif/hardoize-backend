@@ -17,6 +17,7 @@ public class GroupeService {
     private final GroupeRepository      groupeRepository;
     private final MembreGroupeRepository membreRepository;
     private final UtilisateurRepository utilisateurRepository;
+    private final PermissionService permissionService;
 
     public List<Groupe> getByProprietaire(Long proprietaireId) {
         return groupeRepository.findByProprietaireIdAndEstActifTrue(proprietaireId);
@@ -51,6 +52,7 @@ public class GroupeService {
         groupe = groupeRepository.save(groupe);
 
         // Ajouter le propriétaire comme membre permanent
+        // Propriétaire comme membre permanent
         MembreGroupe membre = MembreGroupe.builder()
                 .groupe(groupe)
                 .utilisateur(proprietaire)
@@ -63,6 +65,19 @@ public class GroupeService {
                 .build();
 
         membreRepository.save(membre);
+        membre = membreRepository.save(membre);
+
+        // ── Permissions propriétaire (accès total) ────────────────
+        PermissionMembre perms = permissionService.creerDefaut(membre.getId());
+        // Le propriétaire a accès à tout
+        perms.setPeutVendre(true);
+        perms.setPeutVoirDettes(true);
+        perms.setPeutGererStock(true);
+        perms.setPeutVoirStats(true);
+        perms.setPeutGererClients(true);
+        perms.setPeutVoirHistorique(true);
+        // Sauvegarder via le service
+        permissionService.sauvegarder(perms);
 
         return groupe;
     }
@@ -98,6 +113,10 @@ public class GroupeService {
                 .build();
 
         return membreRepository.save(membre);
+        membre = membreRepository.save(membre);
+        //creation de la permission par defaut
+        permissionService.creerDefaut(membre.getId());
+        return membre;
     }
 
     @Transactional
@@ -110,6 +129,10 @@ public class GroupeService {
         membre.setConnexionPermanente(request.getConnexionPermanente());
 
         return membreRepository.save(membre);
+        membreRepository.save(membre);
+
+        permissionService.creerDefaut(membre.getId());
+        return membre;
     }
 
     @Transactional
@@ -139,20 +162,34 @@ public class GroupeService {
         return membreRepository
                 .findByGroupeIdAndUtilisateurId(groupe.getId(), utilisateur.getId())
                 .map(membre -> {
+                    // Membre existant → juste reconnecter
                     membre.setEstConnecte(true);
                     return membreRepository.save(membre);
+                    // Pas de nouvelles permissions, elles existent déjà
                 })
                 .orElseGet(() -> {
+                    // Nouveau membre
                     MembreGroupe nouveau = MembreGroupe.builder()
                             .groupe(groupe)
                             .utilisateur(utilisateur)
                             .nomAffiche(nomAffiche != null ? nomAffiche : utilisateur.getNom())
+                            .nomAffiche(nomAffiche != null
+                                    ? nomAffiche : utilisateur.getNom())
                             .telephone(utilisateur.getTelephone())
                             .role("vendeur")
                             .bailHeure(bailHeure != null ? bailHeure : groupe.getHeureFermeture())
+                            .bailHeure(bailHeure != null
+                                    ? bailHeure : groupe.getHeureFermeture())
                             .estConnecte(true)
                             .build();
                     return membreRepository.save(nouveau);
+
+                    nouveau = membreRepository.save(nouveau);
+
+                    // ── Créer les permissions par défaut ──────────────
+                    permissionService.creerDefaut(nouveau.getId());
+
+                    return nouveau;
                 });
     }
 }
