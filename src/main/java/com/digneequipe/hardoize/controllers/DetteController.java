@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/dettes")
@@ -44,12 +46,20 @@ public class DetteController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Dette>> creer(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> creer(
             @Valid @RequestBody DetteRequest request,
             Authentication auth) {
-        return ResponseEntity.ok(
-                ApiResponse.ok("Dette créée", detteService.creer(request, auth.getName()))
-        );
+        Dette dette = detteService.creer(request, auth.getName());
+
+        Map<String, Object> dto = new HashMap<>();
+        dto.put("id",                dette.getId());
+        dto.put("montantTotal",      dette.getMontantTotal());
+        dto.put("montantRembourse",  dette.getMontantRembourse());
+        dto.put("dateRemboursement", dette.getDateRemboursement());
+        dto.put("statut",            dette.getStatut());
+        dto.put("createdAt",         dette.getCreatedAt());
+
+        return ResponseEntity.ok(ApiResponse.ok("Dette créée", dto));
     }
 
     @PatchMapping("/{id}/rembourser")

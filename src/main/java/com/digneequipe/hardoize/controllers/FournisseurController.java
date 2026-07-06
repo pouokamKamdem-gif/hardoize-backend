@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/fournisseurs")
@@ -61,11 +63,17 @@ public class FournisseurController {
     }
 
     @PostMapping("/dettes")
-    public ResponseEntity<ApiResponse<DetteFournisseur>> creerDette(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> creerDette(
             @Valid @RequestBody DetteFournisseurRequest request) {
-        return ResponseEntity.ok(
-                ApiResponse.ok("Dette créée", fournisseurService.creerDette(request))
-        );
+        DetteFournisseur dette = fournisseurService.creerDette(request);
+
+        Map<String, Object> dto = new HashMap<>();
+        dto.put("id",                dette.getId());
+        dto.put("montantTotal",      dette.getMontantTotal());
+        dto.put("dateRemboursement", dette.getDateRemboursement());
+        dto.put("statut",            dette.getStatut());
+
+        return ResponseEntity.ok(ApiResponse.ok("Dette créée", dto));
     }
 
     @PatchMapping("/dettes/{id}/rembourser")

@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ventes")
@@ -39,10 +41,20 @@ public class VenteController {
 
     // POST /api/ventes
     @PostMapping
-    public ResponseEntity<ApiResponse<Vente>> creer(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> creer(
             @Valid @RequestBody VenteRequest request,
             Authentication auth) {
         Vente vente = venteService.enregistrer(request, auth.getName());
-        return ResponseEntity.ok(ApiResponse.ok("Vente enregistrée", vente));
+
+        // Retourner un Map simple au lieu de l'entité Hibernate
+        Map<String, Object> dto = new HashMap<>();
+        dto.put("id",           vente.getId());
+        dto.put("nomProduit",   vente.getNomProduit());
+        dto.put("quantite",     vente.getQuantite());
+        dto.put("montantTotal", vente.getMontantTotal());
+        dto.put("typePaiement", vente.getTypePaiement());
+        dto.put("createdAt",    vente.getCreatedAt());
+
+        return ResponseEntity.ok(ApiResponse.ok("Vente enregistrée", dto));
     }
 }

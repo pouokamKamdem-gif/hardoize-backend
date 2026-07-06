@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,10 +39,10 @@ public class MouvementStockController {
 
     // POST /api/mouvements-stock
     @PostMapping
-    public ResponseEntity<ApiResponse<MouvementStock>> enregistrer(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> enregistrer(
             @RequestBody Map<String, Object> body,
             Authentication auth) {
-
+        // ... extraction des paramètres inchangée ...
         Long    produitId     = Long.valueOf(body.get("produitId").toString());
         String  type          = body.get("type").toString();
         String  motif         = body.containsKey("motif")
@@ -62,6 +63,14 @@ public class MouvementStockController {
                 auth.getName()
         );
 
-        return ResponseEntity.ok(ApiResponse.ok("Mouvement enregistré", mvt));
+        Map<String, Object> dto = new HashMap<>();
+        dto.put("id",          mvt.getId());
+        dto.put("nomProduit",  mvt.getNomProduit());
+        dto.put("type",        mvt.getType());
+        dto.put("quantite",    mvt.getQuantite());
+        dto.put("montantTotal",mvt.getMontantTotal());
+        dto.put("createdAt",   mvt.getCreatedAt());
+
+        return ResponseEntity.ok(ApiResponse.ok("Mouvement enregistré", dto));
     }
 }
