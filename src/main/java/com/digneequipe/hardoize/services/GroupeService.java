@@ -51,7 +51,6 @@ public class GroupeService {
 
         groupe = groupeRepository.save(groupe);
 
-        // Ajouter le propriétaire comme membre permanent
         // Propriétaire comme membre permanent
         MembreGroupe membre = MembreGroupe.builder()
                 .groupe(groupe)
@@ -64,7 +63,6 @@ public class GroupeService {
                 .connexionPermanente(true)
                 .build();
 
-        membreRepository.save(membre);
         membre = membreRepository.save(membre);
 
         // ── Permissions propriétaire (accès total) ────────────────
@@ -112,7 +110,6 @@ public class GroupeService {
                 .connexionPermanente(request.getConnexionPermanente())
                 .build();
 
-        return membreRepository.save(membre);
         membre = membreRepository.save(membre);
         //creation de la permission par defaut
         permissionService.creerDefaut(membre.getId());
@@ -128,7 +125,6 @@ public class GroupeService {
         membre.setBailHeure(request.getBailHeure());
         membre.setConnexionPermanente(request.getConnexionPermanente());
 
-        return membreRepository.save(membre);
         membreRepository.save(membre);
 
         permissionService.creerDefaut(membre.getId());
@@ -172,17 +168,14 @@ public class GroupeService {
                     MembreGroupe nouveau = MembreGroupe.builder()
                             .groupe(groupe)
                             .utilisateur(utilisateur)
-                            .nomAffiche(nomAffiche != null ? nomAffiche : utilisateur.getNom())
                             .nomAffiche(nomAffiche != null
                                     ? nomAffiche : utilisateur.getNom())
                             .telephone(utilisateur.getTelephone())
                             .role("vendeur")
-                            .bailHeure(bailHeure != null ? bailHeure : groupe.getHeureFermeture())
                             .bailHeure(bailHeure != null
                                     ? bailHeure : groupe.getHeureFermeture())
                             .estConnecte(true)
                             .build();
-                    return membreRepository.save(nouveau);
 
                     nouveau = membreRepository.save(nouveau);
 
