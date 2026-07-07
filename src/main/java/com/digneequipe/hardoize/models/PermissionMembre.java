@@ -23,10 +23,21 @@ public class PermissionMembre {
     private MembreGroupe membre;
 
     // Permissions disponibles
+    @Builder.Default
     private Boolean peutVendre       = true;  // accès par défaut
+
+    @Builder.Default
     private Boolean peutVoirDettes   = false;
+
+    @Builder.Default
     private Boolean peutGererStock   = false;
+
+    @Builder.Default
     private Boolean peutVoirStats    = false;
+
+    @Builder.Default
     private Boolean peutGererClients = false;
+
+    @Builder.Default
     private Boolean peutVoirHistorique = false;
 }
