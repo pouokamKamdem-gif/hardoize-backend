@@ -35,13 +35,9 @@ public class GroupeController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Groupe>> creer(
     public ResponseEntity<ApiResponse<Map<String, Object>>> creer(
             @Valid @RequestBody GroupeRequest request,
             Authentication auth) {
-        return ResponseEntity.ok(
-                ApiResponse.ok("Groupe créé", groupeService.creer(request, auth.getName()))
-        );
 
         Groupe groupe = groupeService.creer(request, auth.getName());
 
