@@ -32,6 +32,7 @@ public class Groupe {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proprietaire_id", nullable = false)
+    @JsonIgnoreProperties({"groupes", "hibernateLazyInitializer", "handler"})
     private Utilisateur proprietaire;
 
     @Column(nullable = false, unique = true)

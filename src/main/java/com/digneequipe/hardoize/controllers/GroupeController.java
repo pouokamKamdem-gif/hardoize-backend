@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,11 +36,25 @@ public class GroupeController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<Groupe>> creer(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> creer(
             @Valid @RequestBody GroupeRequest request,
             Authentication auth) {
         return ResponseEntity.ok(
                 ApiResponse.ok("Groupe créé", groupeService.creer(request, auth.getName()))
         );
+
+        Groupe groupe = groupeService.creer(request, auth.getName());
+
+        //DTO simple - pas d'entite JPA directement
+        Map<String, Object> dto = new HashMap<>();
+        dto.put("id", groupe.getId());
+        dto.put("nom", groupe.getNom());
+        dto.put("description", groupe.getDescription());
+        dto.put("codeQR", groupe.getCodeQR());
+        dto.put("heureFermeture", groupe.getHeureFermeture());
+        dto.put("createdAt", groupe.getCreatedAt());
+
+        return ResponseEntity.ok(ApiResponse.ok("Groupe cree", dto));
     }
 
     @GetMapping("/{id}/membres")

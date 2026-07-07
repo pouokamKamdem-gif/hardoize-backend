@@ -23,10 +23,12 @@ public class MembreGroupe {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id", nullable = false)
+    @JsonIgnoreProperties({"membres", "proprietaire", "hibernateLazyInitializer", "handler"})
     private Groupe groupe;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utilisateur_id")
+    @JsonIgnoreProperties({"groupes", "hibernateLazyInitializer", "handler" })
     private Utilisateur utilisateur;
 
     @Column(nullable = false)

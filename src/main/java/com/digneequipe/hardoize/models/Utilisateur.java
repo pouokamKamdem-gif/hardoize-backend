@@ -1,5 +1,6 @@
 package com.digneequipe.hardoize.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -60,5 +61,6 @@ public class Utilisateur {
 
     //Relation avec les groupes dont il est proprietaire
     @OneToMany(mappedBy = "proprietaire", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore // empeche la serialisation des groupe depuis utilisateur
     private List<Groupe> groupes;
 }
