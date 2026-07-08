@@ -57,6 +57,7 @@ public class Dette {
     private java.time.LocalDateTime createdAt;
 
     @Column(updatable = true)
+    @UpdateTimestamp
     private java.time.LocalDateTime updatedAt;
 
     @PrePersist
