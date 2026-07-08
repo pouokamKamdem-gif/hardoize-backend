@@ -7,11 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.*;
 
 @Service
@@ -27,13 +24,7 @@ public class VenteService {
     private final UtilisateurRepository utilisateurRepository;
     private final MouvementStockRepository mouvementRepository;
 
-    // ── Enregistrer une vente ─────────────────────────────────
     @Transactional
-    public Vente enregistrer(VenteRequest request, String telephoneUtilisateur) {
-
-        // Récupérer les entités liées
-        Produit produit = produitRepository.findById(request.getProduitId())
-                .orElseThrow(() -> new RuntimeException("Produit introuvable"));
     public Map<String, Object> enregistrer(VenteRequest request,
                                            String telephoneUtilisateur) {
         // ── Validation ────────────────────────────────────────
@@ -47,24 +38,16 @@ public class VenteService {
 
         Groupe groupe = null;
         if (request.getGroupeId() != null) {
-            groupe = groupeRepository.findById(request.getGroupeId()).orElse(null);
             groupe = groupeRepository.findById(request.getGroupeId())
                     .orElseThrow(() -> new RuntimeException("Groupe introuvable"));
         }
 
         Client client = null;
         if (request.getClientId() != null) {
-            client = clientRepository.findById(request.getClientId()).orElse(null);
             client = clientRepository.findById(request.getClientId())
                     .orElse(null);
         }
 
-        // Vérifier le stock disponible
-        if (produit.getQuantiteStock() < request.getQuantite()) {
-            throw new RuntimeException(
-                    "Stock insuffisant pour " + produit.getNom() +
-                            ". Disponible : " + produit.getQuantiteStock()
-            );
         // ── Calculer les totaux depuis les lignes ─────────────
         double montantTotal = 0.0;
         double beneficeNet  = 0.0;
@@ -92,14 +75,8 @@ public class VenteService {
             beneficeNet  += marge;
         }
 
-        // Créer la vente
         // ── Créer la vente ────────────────────────────────────
         Vente vente = Vente.builder()
-                .produit(produit)
-                .nomProduit(produit.getNom())
-                .quantite(request.getQuantite())
-                .prixUnitaire(request.getPrixUnitaire())
-                .montantTotal(request.getMontantTotal())
                 .montantTotal(montantTotal)
                 .beneficeNet(beneficeNet)
                 .typePaiement(request.getTypePaiement())
@@ -110,29 +87,9 @@ public class VenteService {
 
         vente = venteRepository.save(vente);
 
-        // Décrémenter le stock
-        produitRepository.decrementerStock(produit.getId(), request.getQuantite());
-
-        // Enregistrer le mouvement de stock (sortie)
-        MouvementStock mouvement = MouvementStock.builder()
-                .produit(produit)
-                .nomProduit(produit.getNom())
-                .type("sortie")
-                .motif("vente")
-                .quantite(request.getQuantite())
-                .prixUnitaire(request.getPrixUnitaire())
-                .montantTotal(request.getMontantTotal())
-                .utilisateur(utilisateur)
-                .groupe(groupe)
-                .build();
-        mouvementRepository.save(mouvement);
         // ── Créer les lignes de vente ─────────────────────────
         List<Map<String, Object>> lignesDto = new ArrayList<>();
 
-        // Si crédit → créer la dette
-        if ("credit".equals(request.getTypePaiement()) &&
-                client != null &&
-                request.getDateRemboursement() != null) {
         for (VenteRequest.LigneVenteRequest ligneReq : request.getLignes()) {
             Produit produit = produitRepository
                     .findById(ligneReq.getProduitId())
@@ -201,9 +158,7 @@ public class VenteService {
                     .atTime(23, 59, 59);
 
             Dette dette = Dette.builder()
-                    .client(client)
                     .vente(vente)
-                    .montantTotal(request.getMontantTotal())
                     .client(client)
                     .montantTotal(montantTotal)
                     .montantRembourse(0.0)
@@ -213,7 +168,6 @@ public class VenteService {
                     .groupe(groupe)
                     .build();
 
-            detteRepository.save(dette);
             dette = detteRepository.save(dette);
 
             detteDto = new HashMap<>();
@@ -222,7 +176,6 @@ public class VenteService {
             detteDto.put("statut",       dette.getStatut());
         }
 
-        return vente;
         // ── Construire le DTO de réponse ──────────────────────
         Map<String, Object> dto = new HashMap<>();
         dto.put("id",          vente.getId());
@@ -236,9 +189,6 @@ public class VenteService {
         return dto;
     }
 
-    // ── Récupérer les ventes d'un groupe ──────────────────────
-    public List<Vente> getByGroupe(Long groupeId) {
-        return venteRepository.findByGroupeIdOrderByCreatedAtDesc(groupeId);
     public List<Map<String, Object>> getByGroupe(Long groupeId) {
         List<Vente> ventes = venteRepository
                 .findByGroupeIdOrderByCreatedAtDesc(groupeId);
@@ -274,18 +224,13 @@ public class VenteService {
         return result;
     }
 
-    // ── Stats ventes pour le dashboard ────────────────────────
     public double getTotalJour(Long groupeId) {
         LocalDateTime debut = LocalDate.now().atStartOfDay();
         LocalDateTime fin   = LocalDateTime.now();
-        Double total = venteRepository.getTotalVentes(groupeId, debut, fin);
         Double total = ligneVenteRepository.getCATotal(groupeId, debut, fin);
         return total != null ? total : 0.0;
     }
 
-    public double getBeneficeNet(Long groupeId, LocalDateTime debut, LocalDateTime fin) {
-        Double benefice = venteRepository.getBeneficeNet(groupeId, debut, fin);
-        return benefice != null ? benefice : 0.0;
     public double getBeneficeNet(Long groupeId,
                                  LocalDateTime debut,
                                  LocalDateTime fin) {

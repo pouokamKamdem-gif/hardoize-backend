@@ -21,9 +21,7 @@ public class VenteController {
 
     private final VenteService venteService;
 
-    // GET /api/ventes?groupeId=1
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Vente>>> getAll(
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAll(
             @RequestParam Long groupeId) {
         return ResponseEntity.ok(
@@ -31,32 +29,10 @@ public class VenteController {
         );
     }
 
-    // GET /api/ventes/total-jour?groupeId=1
-    @GetMapping("/total-jour")
-    public ResponseEntity<ApiResponse<Double>> getTotalJour(
-            @RequestParam Long groupeId) {
-        return ResponseEntity.ok(
-                ApiResponse.ok(venteService.getTotalJour(groupeId))
-        );
-    }
-
-    // POST /api/ventes
     @PostMapping
     public ResponseEntity<ApiResponse<Map<String, Object>>> creer(
-            @Valid @RequestBody VenteRequest request,
             @RequestBody VenteRequest request,
             Authentication auth) {
-        Vente vente = venteService.enregistrer(request, auth.getName());
-
-        // Retourner un Map simple au lieu de l'entité Hibernate
-        Map<String, Object> dto = new HashMap<>();
-        dto.put("id",           vente.getId());
-        dto.put("nomProduit",   vente.getNomProduit());
-        dto.put("quantite",     vente.getQuantite());
-        dto.put("montantTotal", vente.getMontantTotal());
-        dto.put("typePaiement", vente.getTypePaiement());
-        dto.put("createdAt",    vente.getCreatedAt());
-
         Map<String, Object> dto = venteService.enregistrer(
                 request, auth.getName()
         );
