@@ -35,7 +35,7 @@ public class MouvementStock {
     private String motif; // "vente" | "achat" | "retour" | "perte" | "inventaire"
 
     @NotNull
-    @Positive
+    @PositiveOrZero
     @Builder.Default
     private Integer quantite = 0;
 
