@@ -38,6 +38,7 @@ public class LigneVente {
 
     @Column(nullable = false)
     private Double prixUnitaire; // prix de vente unitaire
+    private Double prixVente; // prix de vente unitaire
 
     @Column(nullable = false)
     private Double sousTotal;    // quantite * prixUnitaire
