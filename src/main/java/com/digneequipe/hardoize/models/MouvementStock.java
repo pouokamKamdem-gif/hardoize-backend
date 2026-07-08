@@ -37,7 +37,8 @@ public class MouvementStock {
     @NotNull
     @Positive
     @Column(nullable = false)
-    private Integer quantite;
+    @Builder.Default
+    private Integer quantite = 0;
 
     @Column(nullable = false)
     @Builder.Default
