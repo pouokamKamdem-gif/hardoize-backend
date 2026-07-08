@@ -24,6 +24,7 @@ public class VenteController {
     // GET /api/ventes?groupeId=1
     @GetMapping
     public ResponseEntity<ApiResponse<List<Vente>>> getAll(
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAll(
             @RequestParam Long groupeId) {
         return ResponseEntity.ok(
                 ApiResponse.ok(venteService.getByGroupe(groupeId))
@@ -43,6 +44,7 @@ public class VenteController {
     @PostMapping
     public ResponseEntity<ApiResponse<Map<String, Object>>> creer(
             @Valid @RequestBody VenteRequest request,
+            @RequestBody VenteRequest request,
             Authentication auth) {
         Vente vente = venteService.enregistrer(request, auth.getName());
 
@@ -55,6 +57,9 @@ public class VenteController {
         dto.put("typePaiement", vente.getTypePaiement());
         dto.put("createdAt",    vente.getCreatedAt());
 
+        Map<String, Object> dto = venteService.enregistrer(
+                request, auth.getName()
+        );
         return ResponseEntity.ok(ApiResponse.ok("Vente enregistrée", dto));
     }
 }
