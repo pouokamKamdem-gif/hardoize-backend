@@ -56,6 +56,9 @@ public class Dette {
     @Column(updatable = false)
     private java.time.LocalDateTime createdAt;
 
+    @Column(updatable = true)
+    private java.time.LocalDateTime updatedAt;
+
     @PrePersist
     protected void onCreate() {
         createdAt      = java.time.LocalDateTime.now();
