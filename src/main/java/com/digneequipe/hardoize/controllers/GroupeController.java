@@ -53,6 +53,16 @@ public class GroupeController {
         return ResponseEntity.ok(ApiResponse.ok("Groupe cree", dto));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Groupe> modifier(
+            @PathVariable Long id, @RequestBody Groupe groupe,
+            Authentication auth) {
+
+        Groupe groupeModifie = groupeService.modifier(id, groupe);
+
+        return ResponseEntity.ok(groupeModifie);
+    }
+
     @GetMapping("/{id}/membres")
     public ResponseEntity<ApiResponse<List<MembreGroupe>>> getMembres(
             @PathVariable Long id) {

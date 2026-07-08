@@ -80,6 +80,17 @@ public class GroupeService {
         return groupe;
     }
 
+    public Groupe modifier(Long id, Groupe nouveau){
+        Groupe ancien = groupeRepository.findById(id).orElseThrow(() -> new RuntimeException("Groupe introuvable"));
+
+        ancien.setNom(nouveau.getNom());
+        ancien.setDescription(nouveau.getDescription());
+        ancien.setHeureFermeture(nouveau.getHeureFermeture());
+        ancien.setPhotoUri(nouveau.getPhotoUri());
+
+        return groupeRepository.save(ancien);
+    }
+
     public List<MembreGroupe> getMembres(Long groupeId) {
         return membreRepository.findByGroupeIdAndEstActifTrue(groupeId);
     }
