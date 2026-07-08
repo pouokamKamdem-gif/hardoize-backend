@@ -36,7 +36,7 @@ public interface VenteRepository extends JpaRepository<Vente, Long> {
             "AND v.createdAt BETWEEN :debut AND :fin")
     Double getTotalCredit(Long groupeId, LocalDateTime debut, LocalDateTime fin);
 
-    @Query("SELECT COALESCE(SUM(l.prixVente * l.quantite - l.produit.prixAchat * l.quantite), 0) " +
+    @Query("SELECT COALESCE(SUM(l.prixUnitaire * l.quantite - l.produit.prixAchat * l.quantite), 0) " +
             "FROM Vente v JOIN v.lignes l WHERE v.groupe.id = :groupeId " +
             "AND v.createdAt BETWEEN :debut AND :fin")
     Double getBeneficeNet(Long groupeId, LocalDateTime debut, LocalDateTime fin);
