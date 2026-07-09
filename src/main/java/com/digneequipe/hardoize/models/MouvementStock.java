@@ -72,7 +72,4 @@ public class MouvementStock {
 
     @Column(name = "montant_paye")
     private Double montantPaye = 0.0;
-
-    @Column(name = "fournisseur_id")
-    private Long fournisseurId;
 }
