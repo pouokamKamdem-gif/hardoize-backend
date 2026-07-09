@@ -1,4 +1,4 @@
-package com.hardoize.backend.entites;
+package com.digneequipe.hardoize.models;
 
 import jakarta.persistence.*;
 import lombok.*;
