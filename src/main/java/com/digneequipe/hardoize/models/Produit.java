@@ -2,13 +2,7 @@ package com.digneequipe.hardoize.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "produits")
@@ -16,72 +10,48 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Produit {
+@EqualsAndHashCode(callSuper = false)
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
+public class Produit extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "uuid", nullable = false, unique = true, updatable = false, length = 36)
-    private String uuid;
-
-    @NotBlank(message = "Le nom du produit est obligatoire")
     @Column(nullable = false)
     private String nom;
 
-    @Column(nullable = false)
+    private String categorie;
+
     @Builder.Default
     private Double prixAchat = 0.0;
 
-    @NotNull(message = "Le prix de vente est obligatoire")
-    @Positive(message = "Le prix de vente doit être positif")
     @Column(nullable = false)
     private Double prixVente;
 
-    @Column(nullable = false)
     @Builder.Default
     private Integer quantiteStock = 0;
 
-    @Column(nullable = false)
     @Builder.Default
     private Integer stockMinimum = 5;
 
-    private String categorie;
     private String photoUri;
 
-    // Relation avec le groupe
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fournisseur_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
+    private Fournisseur fournisseur;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id")
+    @JsonIgnoreProperties({"membres","proprietaire","hibernateLazyInitializer","handler"})
     private Groupe groupe;
 
-    // Relation avec l'utilisateur créateur
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utilisateur_id")
+    @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
     private Utilisateur utilisateur;
 
-    @Column(nullable = false)
     @Builder.Default
     private Boolean estActif = true;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private Boolean syncEnAttente = false;
-
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
-
-    @Column(name = "fournisseur_id")
-    private Long fournisseurId;
-
-    @PrePersist
-    public void prePersist() {
-        if (uuid == null || uuid.isBlank()) {
-            uuid = UUID.randomUUID().toString();
-        }
-    }
 }

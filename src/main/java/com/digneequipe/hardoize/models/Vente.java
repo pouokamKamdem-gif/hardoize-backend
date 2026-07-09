@@ -1,20 +1,11 @@
 package com.digneequipe.hardoize.models;
 
-import com.digneequipe.hardoize.models.Client;
-import com.digneequipe.hardoize.models.Groupe;
-import com.digneequipe.hardoize.models.LigneVente;
-import com.digneequipe.hardoize.models.Utilisateur;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "ventes")
@@ -22,63 +13,40 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Vente {
+@EqualsAndHashCode(callSuper = false)
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
+public class Vente extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "uuid", nullable = false, unique = true, updatable = false, length = 36)
-    private String uuid;
-
-    // Relation avec les lignes
-    @OneToMany(mappedBy = "vente", cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY)
-    @JsonIgnoreProperties({"vente", "hibernateLazyInitializer", "handler"})
+    @OneToMany(mappedBy = "vente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     @Builder.Default
     private List<LigneVente> lignes = new ArrayList<>();
 
-    // Montant total calculé depuis les lignes
+    @Column(nullable = false)
     private Double montantTotal;
 
-    // Bénéfice net calculé depuis les lignes
-    @Column(name = "benefice_net")
+    @Builder.Default
     private Double beneficeNet = 0.0;
 
-    // Mode paiement global
-    private String typePaiement; // "especes" | "credit" | "mixte"
+    @Builder.Default
+    private String typePaiement = "especes";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
-    @JsonIgnoreProperties({"groupes", "hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
     private Client client;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utilisateur_id")
-    @JsonIgnoreProperties({"groupes", "hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
     private Utilisateur utilisateur;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id")
-    @JsonIgnoreProperties({"membres", "proprietaire", "hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({"membres","proprietaire","hibernateLazyInitializer","handler"})
     private Groupe groupe;
-
-    @Column(updatable = false)
-    private java.time.LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = java.time.LocalDateTime.now();
-    }
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt = LocalDateTime.now();
-
-    @PrePersist
-    public void prePersist() {
-        if (uuid == null || uuid.isBlank()) {
-            uuid = UUID.randomUUID().toString();
-        }
-    }
 }

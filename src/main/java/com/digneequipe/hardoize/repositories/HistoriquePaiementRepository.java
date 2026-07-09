@@ -2,6 +2,7 @@ package com.digneequipe.hardoize.repositories;
 
 import com.digneequipe.hardoize.models.HistoriquePaiement;
 import com.digneequipe.hardoize.models.HistoriqueVente;
+import com.digneequipe.hardoize.models.MouvementStock;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -11,4 +12,5 @@ public interface HistoriquePaiementRepository extends JpaRepository<HistoriquePa
 
     List<HistoriquePaiement> findByGroupeId(Long groupeId);
 
-    Optional<HistoriquePaiement> findByUuid(String uuid);}
+    Optional<HistoriquePaiement> findByUuid(String uuid);
+    boolean existsByUuid(String uuid);}

@@ -1,15 +1,9 @@
-
 package com.digneequipe.hardoize.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "dettes")
@@ -17,70 +11,52 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Dette {
+@EqualsAndHashCode(callSuper = false)
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
+public class Dette extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "uuid", nullable = false, unique = true, updatable = false, length = 36)
-    private String uuid;
-
-    // Dette liée à une vente précise (obligatoire)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vente_id", nullable = false)
-    @JsonIgnoreProperties({"lignes", "dettes", "hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({"lignes","hibernateLazyInitializer","handler"})
     private Vente vente;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
-    @JsonIgnoreProperties({"groupes", "hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
     private Client client;
 
+    @Column(nullable = false)
     private Double montantTotal;
-    private Double montantRembourse = 0.0;
-    private Double montantRestant;
 
-    private java.time.LocalDateTime dateRemboursement;
-    private java.time.LocalDateTime dateSolde;
+    @Builder.Default private Double montantRembourse = 0.0;
+    @Builder.Default private Double montantRestant   = 0.0;
 
-    private String statut = "active"; // "active" | "soldee" | "en_retard"
+    private LocalDateTime dateRemboursement;
+    private LocalDateTime dateSolde;
+
+    @Builder.Default
+    private String statut = "active";
+
+    private String paiementsJson;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utilisateur_id")
-    @JsonIgnoreProperties({"groupes", "hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
     private Utilisateur utilisateur;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id")
-    @JsonIgnoreProperties({"membres", "proprietaire", "hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({"membres","proprietaire","hibernateLazyInitializer","handler"})
     private Groupe groupe;
 
-    @Column(updatable = false)
-    private java.time.LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    private java.time.LocalDateTime updatedAt;
-
-    @Column(name = "paiements_json", columnDefinition = "TEXT")
-    private String paiementsJson;
-
     @PrePersist
-    public void prePersist() {
-        if (uuid == null || uuid.isBlank()) {
-            uuid = UUID.randomUUID().toString();
-        }
-    }
-
-    @PrePersist
+    @Override
     protected void onCreate() {
-        createdAt      = java.time.LocalDateTime.now();
+        super.onCreate();
         montantRestant = montantTotal;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        montantRestant = montantTotal - montantRembourse;
     }
 }

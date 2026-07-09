@@ -20,5 +20,6 @@ public interface MouvementStockRepository extends JpaRepository<MouvementStock, 
             "AND m.createdAt BETWEEN :debut AND :fin")
     Double getTotalEntrees(Long groupeId, LocalDateTime debut, LocalDateTime fin);
 
+    // Dans chaque Repository, ajoute :
     Optional<MouvementStock> findByUuid(String uuid);
-}
+    boolean existsByUuid(String uuid);}

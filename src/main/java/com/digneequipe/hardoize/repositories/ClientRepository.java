@@ -32,5 +32,6 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     @Query("UPDATE Client c SET c.score = LEAST(100, c.score + :pts) WHERE c.id = :id")
     void incrementerScore(Long id, Integer pts);
 
+    // Dans chaque Repository, ajoute :
     Optional<Client> findByUuid(String uuid);
-}
+    boolean existsByUuid(String uuid);}

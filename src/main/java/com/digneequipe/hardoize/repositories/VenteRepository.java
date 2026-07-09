@@ -42,5 +42,6 @@ public interface VenteRepository extends JpaRepository<Vente, Long> {
             "AND v.createdAt BETWEEN :debut AND :fin")
     Double getBeneficeNet(Long groupeId, LocalDateTime debut, LocalDateTime fin);
 
+    // Dans chaque Repository, ajoute :
     Optional<Vente> findByUuid(String uuid);
-}
+    boolean existsByUuid(String uuid);}

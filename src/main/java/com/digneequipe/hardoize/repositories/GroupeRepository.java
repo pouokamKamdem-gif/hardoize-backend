@@ -13,5 +13,7 @@ public interface GroupeRepository extends JpaRepository<Groupe, Long> {
 
     Optional<Groupe> findByCodeQR(String codeQR);
 
+    // Dans chaque Repository, ajoute :
     Optional<Groupe> findByUuid(String uuid);
+    boolean existsByUuid(String uuid);
 }

@@ -18,5 +18,6 @@ public interface FournisseurRepository extends JpaRepository<Fournisseur, Long> 
             "OR f.telephone LIKE CONCAT('%', :q, '%'))")
     List<Fournisseur> rechercher(Long groupeId, String q);
 
+    // Dans chaque Repository, ajoute :
     Optional<Fournisseur> findByUuid(String uuid);
-}
+    boolean existsByUuid(String uuid);}

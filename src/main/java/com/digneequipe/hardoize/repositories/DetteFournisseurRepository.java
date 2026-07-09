@@ -33,5 +33,6 @@ public interface DetteFournisseurRepository extends JpaRepository<DetteFournisse
             "d.updatedAt = :now WHERE d.id = :id")
     void solderDette(Long id, LocalDateTime now);
 
+    // Dans chaque Repository, ajoute :
     Optional<DetteFournisseur> findByUuid(String uuid);
-}
+    boolean existsByUuid(String uuid);}

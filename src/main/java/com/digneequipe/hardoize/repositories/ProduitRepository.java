@@ -31,5 +31,6 @@ public interface ProduitRepository extends JpaRepository<Produit, Long> {
     @Query("UPDATE Produit p SET p.quantiteStock = p.quantiteStock + :qte WHERE p.id = :id")
     void incrementerStock(Long id, Integer qte);
 
+    // Dans chaque Repository, ajoute :
     Optional<Produit> findByUuid(String uuid);
-}
+    boolean existsByUuid(String uuid);}

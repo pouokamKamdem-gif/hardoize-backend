@@ -39,5 +39,6 @@ public interface DetteRepository extends JpaRepository<Dette, Long> {
     @Query("UPDATE Dette d SET d.statut = 'soldee', d.updatedAt = :now WHERE d.id = :id")
     void solderDette(Long id, LocalDateTime now);
 
+    // Dans chaque Repository, ajoute :
     Optional<Dette> findByUuid(String uuid);
-}
+    boolean existsByUuid(String uuid);}

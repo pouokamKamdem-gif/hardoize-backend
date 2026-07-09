@@ -24,5 +24,6 @@ public interface MembreGroupeRepository extends JpaRepository<MembreGroupe, Long
             "WHERE m.groupe.id = :groupeId AND m.connexionPermanente = false")
     void deconnecterTous(Long groupeId);
 
+    // Dans chaque Repository, ajoute :
     Optional<MembreGroupe> findByUuid(String uuid);
-}
+    boolean existsByUuid(String uuid);}

@@ -24,5 +24,6 @@ public interface LigneVenteRepository
     Double getCATotal(Long groupeId,
                       LocalDateTime debut, LocalDateTime fin);
 
+    // Dans chaque Repository, ajoute :
     Optional<LigneVente> findByUuid(String uuid);
-}
+    boolean existsByUuid(String uuid);}
