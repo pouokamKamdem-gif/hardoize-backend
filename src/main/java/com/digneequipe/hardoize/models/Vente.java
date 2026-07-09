@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "ventes")
@@ -27,6 +28,9 @@ public class Vente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "uuid", nullable = false, unique = true, updatable = false, length = 36)
+    private String uuid;
 
     // Relation avec les lignes
     @OneToMany(mappedBy = "vente", cascade = CascadeType.ALL,
@@ -71,4 +75,10 @@ public class Vente {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    @PrePersist
+    public void prePersist() {
+        if (uuid == null || uuid.isBlank()) {
+            uuid = UUID.randomUUID().toString();
+        }
+    }
 }

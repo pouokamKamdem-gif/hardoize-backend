@@ -11,6 +11,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "utilisateurs")
@@ -24,6 +25,9 @@ public class Utilisateur {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "uuid", nullable = false, unique = true, updatable = false, length = 36)
+    private String uuid;
 
     @NotBlank(message = "Le nom est obligatoire")
     @Column(nullable = false)
@@ -63,4 +67,11 @@ public class Utilisateur {
     @OneToMany(mappedBy = "proprietaire", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore // empeche la serialisation des groupe depuis utilisateur
     private List<Groupe> groupes;
+
+    @PrePersist
+    public void prePersist() {
+        if (uuid == null || uuid.isBlank()) {
+            uuid = UUID.randomUUID().toString();
+        }
+    }
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface VenteRepository extends JpaRepository<Vente, Long> {
@@ -40,4 +41,6 @@ public interface VenteRepository extends JpaRepository<Vente, Long> {
             "FROM Vente v JOIN v.lignes l WHERE v.groupe.id = :groupeId " +
             "AND v.createdAt BETWEEN :debut AND :fin")
     Double getBeneficeNet(Long groupeId, LocalDateTime debut, LocalDateTime fin);
+
+    Optional<Vente> findByUuid(String uuid);
 }

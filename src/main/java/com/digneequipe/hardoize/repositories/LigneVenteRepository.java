@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface LigneVenteRepository
         extends JpaRepository<LigneVente, Long> {
@@ -22,4 +23,6 @@ public interface LigneVenteRepository
             "AND l.vente.createdAt BETWEEN :debut AND :fin")
     Double getCATotal(Long groupeId,
                       LocalDateTime debut, LocalDateTime fin);
+
+    Optional<LigneVente> findByUuid(String uuid);
 }

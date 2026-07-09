@@ -8,6 +8,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "fournisseurs")
@@ -21,6 +22,9 @@ public class Fournisseur {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "uuid", nullable = false, unique = true, updatable = false, length = 36)
+    private String uuid;
 
     @NotBlank(message = "Le nom du fournisseur est obligatoire")
     @Column(nullable = false)
@@ -46,4 +50,11 @@ public class Fournisseur {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (uuid == null || uuid.isBlank()) {
+            uuid = UUID.randomUUID().toString();
+        }
+    }
 }

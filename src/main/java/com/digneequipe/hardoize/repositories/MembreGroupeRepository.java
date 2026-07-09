@@ -23,4 +23,6 @@ public interface MembreGroupeRepository extends JpaRepository<MembreGroupe, Long
     @Query("UPDATE MembreGroupe m SET m.estConnecte = false " +
             "WHERE m.groupe.id = :groupeId AND m.connexionPermanente = false")
     void deconnecterTous(Long groupeId);
+
+    Optional<MembreGroupe> findByUuid(String uuid);
 }

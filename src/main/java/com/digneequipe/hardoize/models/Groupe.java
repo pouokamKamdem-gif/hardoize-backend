@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "groupes")
@@ -23,6 +24,8 @@ public class Groupe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "uuid", nullable = false, unique = true, updatable = false, length = 36)
+    private String uuid;
 
     @NotBlank(message = "Le nom du groupe est obligatoire")
     @Column(nullable = false)
@@ -58,4 +61,11 @@ public class Groupe {
 
     @OneToMany(mappedBy = "groupe", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MembreGroupe> membres;
+
+    @PrePersist
+    public void prePersist() {
+        if (uuid == null || uuid.isBlank()) {
+            uuid = UUID.randomUUID().toString();
+        }
+    }
 }

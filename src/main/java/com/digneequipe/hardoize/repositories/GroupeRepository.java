@@ -12,4 +12,6 @@ public interface GroupeRepository extends JpaRepository<Groupe, Long> {
     List<Groupe> findByProprietaireIdAndEstActifTrue(Long proprietaireId);
 
     Optional<Groupe> findByCodeQR(String codeQR);
+
+    Optional<Groupe> findByUuid(String uuid);
 }

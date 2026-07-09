@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "historique_paiements")
@@ -17,6 +18,9 @@ public class HistoriquePaiement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "uuid", nullable = false, unique = true, updatable = false)
+    private String uuid;
 
     private String type;
 
@@ -50,4 +54,15 @@ public class HistoriquePaiement {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @PrePersist
+    public void prePersist() {
+        if (uuid == null || uuid.isBlank()) {
+            uuid = java.util.UUID.randomUUID().toString();
+        }
+
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 }

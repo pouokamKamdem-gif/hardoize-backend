@@ -6,7 +6,12 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "historique_ventes")
+@Table(
+        name = "historique_ventes",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"groupe_id", "date"})
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,6 +22,9 @@ public class HistoriqueVente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "uuid", nullable = false, unique = true, updatable = false)
+    private String uuid;
 
     @Column(name = "groupe_id", nullable = false)
     private Long groupeId;
@@ -40,4 +48,15 @@ public class HistoriqueVente {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @PrePersist
+    public void prePersist() {
+        if (uuid == null || uuid.isBlank()) {
+            uuid = java.util.UUID.randomUUID().toString();
+        }
+
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProduitRepository extends JpaRepository<Produit, Long> {
@@ -29,4 +30,6 @@ public interface ProduitRepository extends JpaRepository<Produit, Long> {
     @Modifying
     @Query("UPDATE Produit p SET p.quantiteStock = p.quantiteStock + :qte WHERE p.id = :id")
     void incrementerStock(Long id, Integer qte);
+
+    Optional<Produit> findByUuid(String uuid);
 }

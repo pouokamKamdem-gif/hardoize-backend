@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "membres_groupe")
@@ -20,6 +21,9 @@ public class MembreGroupe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "uuid", nullable = false, unique = true, updatable = false, length = 36)
+    private String uuid;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id", nullable = false)
@@ -66,4 +70,11 @@ public class MembreGroupe {
 
     @Column(name = "permissions_json", columnDefinition = "TEXT")
     private String permissionsJson;
+
+    @PrePersist
+    public void prePersist() {
+        if (uuid == null || uuid.isBlank()) {
+            uuid = UUID.randomUUID().toString();
+        }
+    }
 }

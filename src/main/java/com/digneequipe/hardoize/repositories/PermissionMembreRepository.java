@@ -16,4 +16,6 @@ public interface PermissionMembreRepository
     Optional<PermissionMembre> findByGroupeAndUtilisateur(
             Long groupeId, Long utilisateurId
     );
+
+    Optional<PermissionMembre> findByUuid(String uuid);
 }

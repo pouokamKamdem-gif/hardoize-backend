@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DetteFournisseurRepository extends JpaRepository<DetteFournisseur, Long> {
@@ -31,4 +32,6 @@ public interface DetteFournisseurRepository extends JpaRepository<DetteFournisse
     @Query("UPDATE DetteFournisseur d SET d.statut = 'soldee', " +
             "d.updatedAt = :now WHERE d.id = :id")
     void solderDette(Long id, LocalDateTime now);
+
+    Optional<DetteFournisseur> findByUuid(String uuid);
 }

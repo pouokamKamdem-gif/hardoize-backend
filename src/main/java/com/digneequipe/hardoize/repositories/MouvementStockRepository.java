@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MouvementStockRepository extends JpaRepository<MouvementStock, Long> {
@@ -18,4 +19,6 @@ public interface MouvementStockRepository extends JpaRepository<MouvementStock, 
             "WHERE m.groupe.id = :groupeId AND m.type = 'entree' " +
             "AND m.createdAt BETWEEN :debut AND :fin")
     Double getTotalEntrees(Long groupeId, LocalDateTime debut, LocalDateTime fin);
+
+    Optional<MouvementStock> findByUuid(String uuid);
 }
