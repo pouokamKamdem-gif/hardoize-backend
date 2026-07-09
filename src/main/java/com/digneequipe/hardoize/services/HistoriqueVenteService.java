@@ -13,6 +13,9 @@ public class HistoriqueVenteService {
 
     private final HistoriqueVenteRepository repository;
 
+    public List<HistoriqueVente> getByGroupe(Long groupeId) {
+        return repository.findByGroupeId(groupeId);
+    }
     /**
      * Synchronise une liste d'historiques.
      * Si un historique existe déjà pour le même groupe et la même date,
