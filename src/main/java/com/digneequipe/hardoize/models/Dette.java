@@ -62,9 +62,6 @@ public class Dette {
     @Column(name = "paiements_json", columnDefinition = "TEXT")
     private String paiementsJson;
 
-    @Column(name = "vente_id")
-    private Long venteId;
-
     @PrePersist
     protected void onCreate() {
         createdAt      = java.time.LocalDateTime.now();
