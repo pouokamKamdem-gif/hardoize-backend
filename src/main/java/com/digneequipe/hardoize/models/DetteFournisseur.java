@@ -63,6 +63,15 @@ public class DetteFournisseur {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @Column(name = "montant_restant")
+    private Double montantRestant;
+
+    @Column(name = "paiements_json", columnDefinition = "TEXT")
+    private String paiementsJson;
+
+    @Column(name = "lignes_json", columnDefinition = "TEXT")
+    private String lignesJson;
+
     @Transient
     public Double getMontantRestant() {
         return montantTotal - montantRembourse;

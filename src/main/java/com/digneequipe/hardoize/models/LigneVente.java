@@ -3,6 +3,7 @@ package com.digneequipe.hardoize.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "lignes_ventes")
@@ -10,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class LigneVente {
 
     @Id
@@ -19,12 +20,12 @@ public class LigneVente {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vente_id", nullable = false)
-    @JsonIgnoreProperties({"lignes", "hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({"lignes","hibernateLazyInitializer","handler"})
     private Vente vente;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "produit_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Produit produit;
 
     @Column(nullable = false)
@@ -33,15 +34,14 @@ public class LigneVente {
     @Column(nullable = false)
     private Integer quantite;
 
-    @Column(nullable = false)
-    private Double prixAchat;    // prix au moment de la vente
+    private Double prixAchat    = 0.0;
+    private Double prixUnitaire;
+    private Double sousTotal;
+    private Double marge        = 0.0;
 
-    @Column(nullable = false)
-    private Double prixUnitaire; // prix de vente unitaire
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private Double sousTotal;    // quantite * prixUnitaire
-
-    @Column(nullable = false)
-    private Double marge;        // (prixUnitaire - prixAchat) * quantite
+    @PrePersist
+    protected void onCreate() { createdAt = LocalDateTime.now(); }
 }

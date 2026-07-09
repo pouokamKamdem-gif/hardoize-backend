@@ -66,4 +66,13 @@ public class MouvementStock {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "mode_paiement")
+    private String modePaiement;
+
+    @Column(name = "montant_paye")
+    private Double montantPaye = 0.0;
+
+    @Column(name = "fournisseur_id")
+    private Long fournisseurId;
 }

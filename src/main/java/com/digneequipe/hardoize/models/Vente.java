@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,8 @@ public class Vente {
     private Double montantTotal;
 
     // Bénéfice net calculé depuis les lignes
-    private Double beneficeNet;
+    @Column(name = "benefice_net")
+    private Double beneficeNet = 0.0;
 
     // Mode paiement global
     private String typePaiement; // "especes" | "credit" | "mixte"
@@ -65,4 +67,8 @@ public class Vente {
     protected void onCreate() {
         createdAt = java.time.LocalDateTime.now();
     }
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
 }

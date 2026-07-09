@@ -63,4 +63,7 @@ public class MembreGroupe {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "permissions_json", columnDefinition = "TEXT")
+    private String permissionsJson;
 }

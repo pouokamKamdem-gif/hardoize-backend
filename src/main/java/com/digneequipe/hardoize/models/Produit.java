@@ -70,4 +70,7 @@ public class Produit {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @Column(name = "fournisseur_id")
+    private Long fournisseurId;
 }
