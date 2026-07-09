@@ -111,11 +111,6 @@
 		</dependency>
 		<!-- UUID déjà inclus dans Java, pas besoin de dépendance -->
 		<!-- Mais on ajoute Hibernate types pour UUID en PostgreSQL -->
-		<dependency>
-			<groupId>com.fasterxml.uuid</groupId>
-			<artifactId>java-uuid-generator</artifactId>
-			<version>4.3.0</version>
-		</dependency>
 	</dependencies>
 
 	<build>
