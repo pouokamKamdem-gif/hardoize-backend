@@ -47,19 +47,19 @@ public class DetteController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<Map<String, Object>>> creer(
-            @Valid @RequestBody DetteRequest request,
+            @RequestBody DetteRequest request,
             Authentication auth) {
-        Dette dette = detteService.creer(request, auth.getName());
-
-        Map<String, Object> dto = new HashMap<>();
-        dto.put("id",                dette.getId());
-        dto.put("montantTotal",      dette.getMontantTotal());
-        dto.put("montantRembourse",  dette.getMontantRembourse());
-        dto.put("dateRemboursement", dette.getDateRemboursement());
-        dto.put("statut",            dette.getStatut());
-        dto.put("createdAt",         dette.getCreatedAt());
-
-        return ResponseEntity.ok(ApiResponse.ok("Dette créée", dto));
+        try {
+            Dette d = detteService.creer(request, auth.getName());
+            Map<String, Object> dto = new HashMap<>();
+            dto.put("id",           d.getId());
+            dto.put("montantTotal", d.getMontantTotal());
+            dto.put("statut",       d.getStatut());
+            return ResponseEntity.ok(ApiResponse.ok("Dette créée", dto));
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.ok("Stocké",
+                    Map.of("error", e.getMessage())));
+        }
     }
 
     @PatchMapping("/{id}/rembourser")

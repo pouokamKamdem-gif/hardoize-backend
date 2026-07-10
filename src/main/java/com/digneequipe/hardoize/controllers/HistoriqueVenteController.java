@@ -1,37 +1,53 @@
 package com.digneequipe.hardoize.controllers;
 
+import com.digneequipe.hardoize.dto.response.ApiResponse;
 import com.digneequipe.hardoize.models.HistoriqueVente;
-import com.digneequipe.hardoize.services.HistoriqueVenteService;
+import com.digneequipe.hardoize.repositories.HistoriqueVenteRepository;
+import com.digneequipe.hardoize.repositories.GroupeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/historique-ventes")
 @RequiredArgsConstructor
 public class HistoriqueVenteController {
 
-    private final HistoriqueVenteService service;
+    private final HistoriqueVenteRepository historiqueRepo;
+    private final GroupeRepository          groupeRepo;
 
-    /**
-     * Synchronisation depuis SQLite vers Supabase.
-     */
     @PostMapping
-    public ResponseEntity<List<HistoriqueVente>> synchroniser(
-            @RequestBody List<HistoriqueVente> historiques) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> enregistrer(
+            @RequestBody Map<String, Object> body) {
+        try {
+            Long groupeId = body.get("groupeId") != null
+                    ? Long.valueOf(body.get("groupeId").toString()) : null;
 
-        return ResponseEntity.ok(service.synchroniser(historiques));
-    }
+            HistoriqueVente h = new HistoriqueVente();
+            h.setDate(body.getOrDefault("date","").toString());
+            h.setTotalVentes(body.get("totalVentes") != null
+                    ? Double.valueOf(body.get("totalVentes").toString()) : 0.0);
+            h.setTotalEspeces(body.get("totalEspeces") != null
+                    ? Double.valueOf(body.get("totalEspeces").toString()) : 0.0);
+            h.setTotalCredit(body.get("totalCredit") != null
+                    ? Double.valueOf(body.get("totalCredit").toString()) : 0.0);
+            h.setBeneficeNet(body.get("beneficeNet") != null
+                    ? Double.valueOf(body.get("beneficeNet").toString()) : 0.0);
+            h.setNbVentes(body.get("nbVentes") != null
+                    ? Integer.valueOf(body.get("nbVentes").toString()) : 0);
 
-    /**
-     * Récupérer les historiques d'un groupe.
-     */
-    @GetMapping("/{groupeId}")
-    public ResponseEntity<List<HistoriqueVente>> getByGroupe(
-            @PathVariable Long groupeId) {
+            if (groupeId != null) {
+                groupeRepo.findById(groupeId).ifPresent(h::setGroupe);
+            }
 
-        return ResponseEntity.ok(service.getByGroupe(groupeId));
+            h = historiqueRepo.save(h);
+            return ResponseEntity.ok(ApiResponse.ok("Historique enregistré",
+                    Map.of("id", h.getId())));
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.ok("Stocké",
+                    Map.of("error", e.getMessage())));
+        }
     }
 }

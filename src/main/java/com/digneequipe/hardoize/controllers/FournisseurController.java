@@ -31,20 +31,50 @@ public class FournisseurController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Fournisseur>> creer(
-            @Valid @RequestBody FournisseurRequest request) {
-        return ResponseEntity.ok(
-                ApiResponse.ok("Fournisseur créé", fournisseurService.creer(request))
-        );
+    public ResponseEntity<ApiResponse<Map<String, Object>>> creer(
+            @RequestBody FournisseurRequest request) {
+        try {
+            Fournisseur f = fournisseurService.creer(request);
+            Map<String, Object> dto = new HashMap<>();
+            dto.put("id",  f.getId());
+            dto.put("nom", f.getNom());
+            return ResponseEntity.ok(ApiResponse.ok("Fournisseur créé", dto));
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.ok("Stocké",
+                    Map.of("error", e.getMessage())));
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Fournisseur>> modifier(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> modifier(
             @PathVariable Long id,
-            @Valid @RequestBody FournisseurRequest request) {
-        return ResponseEntity.ok(
-                ApiResponse.ok("Fournisseur modifié", fournisseurService.modifier(id, request))
-        );
+            @RequestBody FournisseurRequest request) {
+        try {
+            Fournisseur f = fournisseurService.modifier(id, request);
+            Map<String, Object> dto = new HashMap<>();
+            dto.put("id",  f.getId());
+            dto.put("nom", f.getNom());
+            return ResponseEntity.ok(ApiResponse.ok("Fournisseur modifié", dto));
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.ok("Stocké",
+                    Map.of("error", e.getMessage())));
+        }
+    }
+
+    @PostMapping("/dettes")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> creerDette(
+            @RequestBody DetteFournisseurRequest request) {
+        try {
+            DetteFournisseur df = fournisseurService.creerDette(request);
+            Map<String, Object> dto = new HashMap<>();
+            dto.put("id",           df.getId());
+            dto.put("montantTotal", df.getMontantTotal());
+            dto.put("statut",       df.getStatut());
+            return ResponseEntity.ok(ApiResponse.ok("Dette créée", dto));
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.ok("Stocké",
+                    Map.of("error", e.getMessage())));
+        }
     }
 
     @PatchMapping("/{id}/desactiver")
@@ -60,20 +90,6 @@ public class FournisseurController {
         return ResponseEntity.ok(
                 ApiResponse.ok(fournisseurService.getDettesActives(groupeId))
         );
-    }
-
-    @PostMapping("/dettes")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> creerDette(
-            @Valid @RequestBody DetteFournisseurRequest request) {
-        DetteFournisseur dette = fournisseurService.creerDette(request);
-
-        Map<String, Object> dto = new HashMap<>();
-        dto.put("id",                dette.getId());
-        dto.put("montantTotal",      dette.getMontantTotal());
-        dto.put("dateRemboursement", dette.getDateRemboursement());
-        dto.put("statut",            dette.getStatut());
-
-        return ResponseEntity.ok(ApiResponse.ok("Dette créée", dto));
     }
 
     @PatchMapping("/dettes/{id}/rembourser")

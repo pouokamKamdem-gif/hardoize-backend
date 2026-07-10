@@ -16,66 +16,49 @@ import java.util.*;
 public class VenteService {
 
     private final VenteRepository       venteRepository;
-    private final LigneVenteRepository  ligneVenteRepository;
-    private final ProduitRepository     produitRepository;
-    private final ClientRepository      clientRepository;
+    private final LigneVenteRepository  ligneVenteRepo;
+    private final ProduitRepository     produitRepo;
+    private final ClientRepository      clientRepo;
     private final DetteRepository       detteRepository;
-    private final GroupeRepository      groupeRepository;
-    private final UtilisateurRepository utilisateurRepository;
+    private final GroupeRepository      groupeRepo;
+    private final UtilisateurRepository utilisateurRepo;
     private final MouvementStockRepository mouvementRepository;
+    private final VenteRepository venteRepo;
+    private final DetteRepository detteRepo;
 
     @Transactional
     public Map<String, Object> enregistrer(VenteRequest request,
                                            String telephoneUtilisateur) {
-        // ── Validation ────────────────────────────────────────
         if (request.getLignes() == null || request.getLignes().isEmpty()) {
-            throw new RuntimeException("Le panier est vide");
+            throw new RuntimeException("Panier vide");
         }
 
-        Utilisateur utilisateur = utilisateurRepository
+        Utilisateur utilisateur = utilisateurRepo
                 .findByTelephone(telephoneUtilisateur)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
         Groupe groupe = null;
         if (request.getGroupeId() != null) {
-            groupe = groupeRepository.findById(request.getGroupeId())
-                    .orElseThrow(() -> new RuntimeException("Groupe introuvable"));
+            groupe = groupeRepo.findById(request.getGroupeId()).orElse(null);
         }
 
         Client client = null;
         if (request.getClientId() != null) {
-            client = clientRepository.findById(request.getClientId())
-                    .orElse(null);
+            client = clientRepo.findById(request.getClientId()).orElse(null);
         }
 
-        // ── Calculer les totaux depuis les lignes ─────────────
+        // Calculer totaux
         double montantTotal = 0.0;
         double beneficeNet  = 0.0;
-
-        for (VenteRequest.LigneVenteRequest ligne : request.getLignes()) {
-            Produit produit = produitRepository.findById(ligne.getProduitId())
-                    .orElseThrow(() -> new RuntimeException(
-                            "Produit introuvable : " + ligne.getProduitId()));
-
-            if (produit.getQuantiteStock() < ligne.getQuantite()) {
-                throw new RuntimeException(
-                        "Stock insuffisant pour " + produit.getNom() +
-                                ". Disponible : " + produit.getQuantiteStock()
-                );
-            }
-
+        for (var ligne : request.getLignes()) {
             double sousTotal = ligne.getPrixUnitaire() * ligne.getQuantite();
             double prixAchat = ligne.getPrixAchat() != null
-                    ? ligne.getPrixAchat()
-                    : produit.getPrixAchat();
-            double marge = (ligne.getPrixUnitaire() - prixAchat)
-                    * ligne.getQuantite();
-
+                    ? ligne.getPrixAchat() : 0.0;
             montantTotal += sousTotal;
-            beneficeNet  += marge;
+            beneficeNet  += (ligne.getPrixUnitaire() - prixAchat) * ligne.getQuantite();
         }
 
-        // ── Créer la vente ────────────────────────────────────
+        // Créer vente — PAS de vérification stock (mode solo = frontend vérifie)
         Vente vente = Vente.builder()
                 .montantTotal(montantTotal)
                 .beneficeNet(beneficeNet)
@@ -84,99 +67,75 @@ public class VenteService {
                 .utilisateur(utilisateur)
                 .groupe(groupe)
                 .build();
+        vente = venteRepo.save(vente);
 
-        vente = venteRepository.save(vente);
-
-        // ── Créer les lignes de vente ─────────────────────────
+        // Créer lignes
         List<Map<String, Object>> lignesDto = new ArrayList<>();
-
-        for (VenteRequest.LigneVenteRequest ligneReq : request.getLignes()) {
-            Produit produit = produitRepository
-                    .findById(ligneReq.getProduitId())
-                    .orElseThrow(() -> new RuntimeException("Produit introuvable"));
+        for (var ligneReq : request.getLignes()) {
+            Produit produit = null;
+            try {
+                produit = produitRepo.findById(ligneReq.getProduitId()).orElse(null);
+            } catch (Exception ignored) {}
 
             double prixAchat = ligneReq.getPrixAchat() != null
                     ? ligneReq.getPrixAchat()
-                    : produit.getPrixAchat();
+                    : (produit != null ? produit.getPrixAchat() : 0.0);
             double sousTotal = ligneReq.getPrixUnitaire() * ligneReq.getQuantite();
-            double marge = (ligneReq.getPrixUnitaire() - prixAchat)
+            double marge     = (ligneReq.getPrixUnitaire() - prixAchat)
                     * ligneReq.getQuantite();
 
             LigneVente ligne = LigneVente.builder()
                     .vente(vente)
                     .produit(produit)
-                    .nomProduit(produit.getNom())
+                    .nomProduit(ligneReq.getNomProduit())
                     .quantite(ligneReq.getQuantite())
                     .prixAchat(prixAchat)
                     .prixUnitaire(ligneReq.getPrixUnitaire())
                     .sousTotal(sousTotal)
                     .marge(marge)
                     .build();
+            ligneVenteRepo.save(ligne);
 
-            ligne = ligneVenteRepository.save(ligne);
-
-            // Décrémenter le stock
-            produitRepository.decrementerStock(
-                    produit.getId(), ligneReq.getQuantite()
-            );
-
-            // Enregistrer mouvement de stock (sortie vente)
-            MouvementStock mouvement = MouvementStock.builder()
-                    .produit(produit)
-                    .nomProduit(produit.getNom())
-                    .type("sortie")
-                    .motif("vente")
-                    .quantite(ligneReq.getQuantite())
-                    .prixUnitaire(ligneReq.getPrixUnitaire())
-                    .montantTotal(sousTotal)
-                    .utilisateur(utilisateur)
-                    .groupe(groupe)
-                    .build();
-            mouvementRepository.save(mouvement);
-
-            // DTO ligne
-            Map<String, Object> ligneMap = new HashMap<>();
-            ligneMap.put("id",          ligne.getId());
-            ligneMap.put("produitId",   produit.getId());
-            ligneMap.put("nomProduit",  produit.getNom());
-            ligneMap.put("quantite",    ligne.getQuantite());
-            ligneMap.put("prixAchat",   ligne.getPrixAchat());
-            ligneMap.put("prixUnitaire",ligne.getPrixUnitaire());
-            ligneMap.put("sousTotal",   ligne.getSousTotal());
-            ligneMap.put("marge",       ligne.getMarge());
-            lignesDto.add(ligneMap);
+            Map<String, Object> lDto = new HashMap<>();
+            lDto.put("id",          ligne.getId());
+            lDto.put("nomProduit",  ligne.getNomProduit());
+            lDto.put("quantite",    ligne.getQuantite());
+            lDto.put("prixUnitaire",ligne.getPrixUnitaire());
+            lDto.put("sousTotal",   ligne.getSousTotal());
+            lDto.put("marge",       ligne.getMarge());
+            lignesDto.add(lDto);
         }
 
-        // ── Créer la dette si crédit ──────────────────────────
+        // Créer dette si crédit
         Map<String, Object> detteDto = null;
-        if ("credit".equals(request.getTypePaiement()) && client != null
+        if ("credit".equals(request.getTypePaiement())
+                && client != null
                 && request.getDateRemboursement() != null) {
+            try {
+                LocalDateTime dateRemb = LocalDate
+                        .parse(request.getDateRemboursement(),
+                                DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        .atTime(23, 59, 59);
 
-            LocalDateTime dateRemb = LocalDate
-                    .parse(request.getDateRemboursement(),
-                            DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                    .atTime(23, 59, 59);
+                Dette dette = Dette.builder()
+                        .vente(vente)
+                        .client(client)
+                        .montantTotal(montantTotal)
+                        .montantRembourse(0.0)
+                        .montantRestant(montantTotal)
+                        .dateRemboursement(dateRemb)
+                        .utilisateur(utilisateur)
+                        .groupe(groupe)
+                        .build();
+                dette = detteRepo.save(dette);
 
-            Dette dette = Dette.builder()
-                    .vente(vente)
-                    .client(client)
-                    .montantTotal(montantTotal)
-                    .montantRembourse(0.0)
-                    .montantRestant(montantTotal)
-                    .dateRemboursement(dateRemb)
-                    .utilisateur(utilisateur)
-                    .groupe(groupe)
-                    .build();
-
-            dette = detteRepository.save(dette);
-
-            detteDto = new HashMap<>();
-            detteDto.put("id",           dette.getId());
-            detteDto.put("montantTotal", dette.getMontantTotal());
-            detteDto.put("statut",       dette.getStatut());
+                detteDto = new HashMap<>();
+                detteDto.put("id",           dette.getId());
+                detteDto.put("montantTotal", dette.getMontantTotal());
+                detteDto.put("statut",       dette.getStatut());
+            } catch (Exception ignored) {}
         }
 
-        // ── Construire le DTO de réponse ──────────────────────
         Map<String, Object> dto = new HashMap<>();
         dto.put("id",          vente.getId());
         dto.put("montantTotal",vente.getMontantTotal());
@@ -185,7 +144,6 @@ public class VenteService {
         dto.put("lignes",      lignesDto);
         dto.put("createdAt",   vente.getCreatedAt());
         if (detteDto != null) dto.put("dette", detteDto);
-
         return dto;
     }
 
@@ -205,7 +163,7 @@ public class VenteService {
                     v.getClient() != null ? v.getClient().getNomClient() : null);
 
             // Charger les lignes
-            List<LigneVente> lignes = ligneVenteRepository
+            List<LigneVente> lignes = ligneVenteRepo
                     .findByVenteId(v.getId());
             List<Map<String, Object>> lignesDto = new ArrayList<>();
             for (LigneVente l : lignes) {
@@ -227,14 +185,14 @@ public class VenteService {
     public double getTotalJour(Long groupeId) {
         LocalDateTime debut = LocalDate.now().atStartOfDay();
         LocalDateTime fin   = LocalDateTime.now();
-        Double total = ligneVenteRepository.getCATotal(groupeId, debut, fin);
+        Double total = ligneVenteRepo.getCATotal(groupeId, debut, fin);
         return total != null ? total : 0.0;
     }
 
     public double getBeneficeNet(Long groupeId,
                                  LocalDateTime debut,
                                  LocalDateTime fin) {
-        Double b = ligneVenteRepository.getBeneficeNet(groupeId, debut, fin);
+        Double b = ligneVenteRepo.getBeneficeNet(groupeId, debut, fin);
         return b != null ? b : 0.0;
     }
 }

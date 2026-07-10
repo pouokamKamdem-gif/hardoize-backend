@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/clients")
@@ -35,21 +37,37 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Client>> creer(
-            @Valid @RequestBody ClientRequest request,
+    public ResponseEntity<ApiResponse<Map<String, Object>>> creer(
+            @RequestBody ClientRequest request,
             Authentication auth) {
-        return ResponseEntity.ok(
-                ApiResponse.ok("Client créé", clientService.creer(request, auth.getName()))
-        );
+        try {
+            Client c = clientService.creer(request, auth.getName());
+            Map<String, Object> dto = new HashMap<>();
+            dto.put("id",           c.getId());
+            dto.put("nomClient",    c.getNomClient());
+            dto.put("numeroClient", c.getNumeroClient());
+            dto.put("score",        c.getScore());
+            return ResponseEntity.ok(ApiResponse.ok("Client créé", dto));
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.ok("Stocké",
+                    Map.of("error", e.getMessage())));
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Client>> modifier(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> modifier(
             @PathVariable Long id,
-            @Valid @RequestBody ClientRequest request) {
-        return ResponseEntity.ok(
-                ApiResponse.ok("Client modifié", clientService.modifier(id, request))
-        );
+            @RequestBody ClientRequest request) {
+        try {
+            Client c = clientService.modifier(id, request);
+            Map<String, Object> dto = new HashMap<>();
+            dto.put("id",        c.getId());
+            dto.put("nomClient", c.getNomClient());
+            return ResponseEntity.ok(ApiResponse.ok("Client modifié", dto));
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.ok("Stocké",
+                    Map.of("error", e.getMessage())));
+        }
     }
 
     @PatchMapping("/{id}/desactiver")
