@@ -21,21 +21,6 @@ public class ClientController {
 
     private final ClientService clientService;
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<Client>>> getAll(
-            @RequestParam Long groupeId,
-            @RequestParam(required = false) String q) {
-        List<Client> clients = (q != null && !q.isBlank())
-                ? clientService.rechercher(groupeId, q)
-                : clientService.getByGroupe(groupeId);
-        return ResponseEntity.ok(ApiResponse.ok(clients));
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Client>> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.ok(clientService.getById(id)));
-    }
-
     @PostMapping
     public ResponseEntity<ApiResponse<Map<String, Object>>> creer(
             @RequestBody ClientRequest request,
@@ -68,24 +53,5 @@ public class ClientController {
             return ResponseEntity.ok(ApiResponse.ok("Stocké",
                     Map.of("error", e.getMessage())));
         }
-    }
-
-    @PatchMapping("/{id}/desactiver")
-    public ResponseEntity<ApiResponse<Void>> desactiver(@PathVariable Long id) {
-        clientService.setActif(id, false);
-        return ResponseEntity.ok(ApiResponse.ok("Client désactivé", null));
-    }
-
-    @PatchMapping("/{id}/score")
-    public ResponseEntity<ApiResponse<Void>> updateScore(
-            @PathVariable Long id,
-            @RequestBody java.util.Map<String, Integer> body) {
-        Integer score = body.get("score");
-        if (score != null && score > 0) {
-            clientService.incrementerScore(id, score);
-        } else if (score != null && score < 0) {
-            clientService.decrementerScore(id, Math.abs(score));
-        }
-        return ResponseEntity.ok(ApiResponse.ok("Score mis à jour", null));
     }
 }

@@ -21,14 +21,6 @@ public class VenteController {
 
     private final VenteService venteService;
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAll(
-            @RequestParam Long groupeId) {
-        return ResponseEntity.ok(
-                ApiResponse.ok(venteService.getByGroupe(groupeId))
-        );
-    }
-
     @PostMapping
     public ResponseEntity<ApiResponse<Map<String, Object>>> creer(
             @RequestBody VenteRequest request,

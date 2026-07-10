@@ -19,25 +19,6 @@ public class MouvementStockController {
 
     private final MouvementStockService mouvementService;
 
-    // GET /api/mouvements-stock?groupeId=1
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<MouvementStock>>> getAll(
-            @RequestParam Long groupeId) {
-        return ResponseEntity.ok(
-                ApiResponse.ok(mouvementService.getByGroupe(groupeId))
-        );
-    }
-
-    // GET /api/mouvements-stock/produit/{produitId}
-    @GetMapping("/produit/{produitId}")
-    public ResponseEntity<ApiResponse<List<MouvementStock>>> getByProduit(
-            @PathVariable Long produitId) {
-        return ResponseEntity.ok(
-                ApiResponse.ok(mouvementService.getByProduit(produitId))
-        );
-    }
-
-    // POST /api/mouvements-stock
     @PostMapping
     public ResponseEntity<ApiResponse<Map<String, Object>>> enregistrer(
             @RequestBody Map<String, Object> body,
@@ -76,4 +57,5 @@ public class MouvementStockController {
             return ResponseEntity.ok(ApiResponse.ok("Stocké",
                     Map.of("error", e.getMessage())));
         }
-    }}
+    }
+}
