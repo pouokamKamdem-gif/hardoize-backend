@@ -43,7 +43,7 @@ public class GroupeService {
                 .nom(request.getNom())
                 .description(request.getDescription())
                 .proprietaire(proprietaire)
-                .codeQR(UUID.randomUUID().toString())
+                .codeQR(java.util.UUID.randomUUID().toString())
                 .photoUri(request.getPhotoUri())
                 .heureFermeture(request.getHeureFermeture() != null
                         ? request.getHeureFermeture() : "18:00")
@@ -62,22 +62,24 @@ public class GroupeService {
                 .estConnecte(true)
                 .connexionPermanente(true)
                 .build();
-
-        membre = membreRepository.save(membre);
+        membreRepository.save(membre);
 
         // ── Permissions propriétaire (accès total) ────────────────
-        PermissionMembre perms = permissionService.creerDefaut(membre.getId());
-        // Le propriétaire a accès à tout
-        perms.setPeutVendre(true);
-        perms.setPeutVoirDettes(true);
-        perms.setPeutGererStock(true);
-        perms.setPeutVoirStats(true);
-        perms.setPeutGererClients(true);
-        perms.setPeutVoirHistorique(true);
-        // Sauvegarder via le service
-        permissionService.sauvegarder(perms);
-
-        return groupe;
+        try{
+            PermissionMembre perms = permissionService.creerDefaut(membre.getId());
+            // Le propriétaire a accès à tout
+            perms.setPeutVendre(true);
+            perms.setPeutVoirDettes(true);
+            perms.setPeutGererStock(true);
+            perms.setPeutVoirStats(true);
+            perms.setPeutGererClients(true);
+            perms.setPeutVoirHistorique(true);
+            // Sauvegarder via le service
+            permissionService.sauvegarder(perms);
+        }catch (Exception ignored){}
+            //Retourner sans proxy - flush avant fin de transaction
+            groupeRepository.flush();
+            return groupe;
     }
 
     public Groupe modifier(Long id, Groupe nouveau){

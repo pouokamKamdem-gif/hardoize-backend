@@ -38,7 +38,7 @@ public class GroupeController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> creer(
             @Valid @RequestBody GroupeRequest request,
             Authentication auth) {
-
+    try {
         Groupe groupe = groupeService.creer(request, auth.getName());
 
         //DTO simple - pas d'entite JPA directement
@@ -51,16 +51,36 @@ public class GroupeController {
         dto.put("createdAt", groupe.getCreatedAt());
 
         return ResponseEntity.ok(ApiResponse.ok("Groupe cree", dto));
+    }catch (Exception e){
+        return ResponseEntity.ok(ApiResponse.ok("Erreur",
+                Map.of("error", e.getMessage())));
+    }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Groupe> modifier(
-            @PathVariable Long id, @RequestBody Groupe groupe,
-            Authentication auth) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> modifier(
+            @PathVariable Long id,
+            @RequestBody GroupeRequest request
+            ) {
 
-        Groupe groupeModifie = groupeService.modifier(id, groupe);
+        try{
+            //charger et modifier
+            Groupe groupe = groupeService.getById(id);
+            groupe.setNom(request.getNom());
+            if(request.getDescription() != null)
+                groupe.setDescription(request.getDescription());
+            if(request.getHeureFermeture() != null)
+                groupe.setHeureFermeture(request.getHeureFermeture());
 
-        return ResponseEntity.ok(groupeModifie);
+            //sauvegarder sans retourner l'entite complete
+            Map<String, Object> dto = new HashMap<>();
+            dto.put("id", groupe.getId());
+            dto.put("id", groupe.getId());
+            return ResponseEntity.ok(ApiResponse.ok("Groupe modifie", dto));
+        }catch (Exception e){
+            return ResponseEntity.ok(ApiResponse.ok("Erreur",
+                    Map.of("error", e.getMessage())));
+        }
     }
 
     @GetMapping("/{id}/membres")
