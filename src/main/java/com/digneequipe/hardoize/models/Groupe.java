@@ -34,13 +34,11 @@ public class Groupe extends BaseEntity {
 
     private String photoUri;
 
-    @Builder.Default
-    private String heureFermeture = "18:00";
+    private String heureFermeture;
 
     @Builder.Default
     private Boolean estActif = true;
 
-    @OneToMany(mappedBy = "groupe", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<MembreGroupe> membres;
 }
