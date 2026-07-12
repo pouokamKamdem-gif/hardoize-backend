@@ -25,7 +25,6 @@ public class Client extends BaseEntity {
     private String email;
     private String photoUri;
 
-    @Builder.Default
     private Integer score;
 
     @JoinColumn(name = "groupe_id")
