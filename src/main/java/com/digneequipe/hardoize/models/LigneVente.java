@@ -18,12 +18,10 @@ public class LigneVente extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vente_id", nullable = false)
     @JsonIgnoreProperties({"lignes","hibernateLazyInitializer","handler"})
     private Vente vente;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "produit_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Produit produit;

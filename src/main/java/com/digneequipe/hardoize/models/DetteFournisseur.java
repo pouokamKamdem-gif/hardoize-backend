@@ -19,7 +19,6 @@ public class DetteFournisseur extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fournisseur_id", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Fournisseur fournisseur;
@@ -40,7 +39,6 @@ public class DetteFournisseur extends BaseEntity {
     @Builder.Default
     private String statut = "active";
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id")
     @JsonIgnoreProperties({"membres","proprietaire","hibernateLazyInitializer","handler"})
     private Groupe groupe;

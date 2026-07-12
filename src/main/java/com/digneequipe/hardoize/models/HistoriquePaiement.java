@@ -36,24 +36,20 @@ public class HistoriquePaiement extends BaseEntity {
 
     private String nomClient;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fournisseur_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Fournisseur fournisseur;
 
     private String nomFournisseur;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dette_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Dette dette;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vente_id")
     @JsonIgnoreProperties({"lignes","hibernateLazyInitializer","handler"})
     private Vente vente;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id")
     @JsonIgnoreProperties({"membres","proprietaire","hibernateLazyInitializer","handler"})
     private Groupe groupe;

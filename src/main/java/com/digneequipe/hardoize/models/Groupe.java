@@ -25,7 +25,6 @@ public class Groupe extends BaseEntity {
 
     private String description;
 
-    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "proprietaire_id")
     @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
     private Utilisateur proprietaire;

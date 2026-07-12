@@ -18,7 +18,6 @@ public class PermissionMembre extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "membre_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private MembreGroupe membre;

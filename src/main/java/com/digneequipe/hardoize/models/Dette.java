@@ -19,12 +19,10 @@ public class Dette extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vente_id", nullable = false)
     @JsonIgnoreProperties({"lignes","hibernateLazyInitializer","handler"})
     private Vente vente;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
     @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
     private Client client;
@@ -43,12 +41,10 @@ public class Dette extends BaseEntity {
 
     private String paiementsJson;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utilisateur_id")
     @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
     private Utilisateur utilisateur;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id")
     @JsonIgnoreProperties({"membres","proprietaire","hibernateLazyInitializer","handler"})
     private Groupe groupe;

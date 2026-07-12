@@ -41,7 +41,6 @@ public class Utilisateur extends BaseEntity {
     @Builder.Default
     private Boolean estActif = true;
 
-    @OneToMany(mappedBy = "proprietaire", fetch = FetchType.LAZY)
     @JsonIgnore
     private java.util.List<Groupe> groupes;
 }

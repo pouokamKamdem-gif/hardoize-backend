@@ -26,7 +26,6 @@ public class Fournisseur extends BaseEntity {
     private String adresse;
     private String photoUri;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id")
     @JsonIgnoreProperties({"membres","proprietaire","hibernateLazyInitializer","handler"})
     private Groupe groupe;

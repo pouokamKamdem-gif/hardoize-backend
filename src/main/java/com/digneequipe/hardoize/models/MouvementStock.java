@@ -39,17 +39,14 @@ public class MouvementStock extends BaseEntity {
 
     private String modePaiement;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fournisseur_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Fournisseur fournisseur;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utilisateur_id")
     @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
     private Utilisateur utilisateur;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id")
     @JsonIgnoreProperties({"membres","proprietaire","hibernateLazyInitializer","handler"})
     private Groupe groupe;

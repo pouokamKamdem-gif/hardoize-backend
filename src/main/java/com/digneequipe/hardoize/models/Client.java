@@ -26,14 +26,12 @@ public class Client extends BaseEntity {
     private String photoUri;
 
     @Builder.Default
-    private Integer score = 100;
+    private Integer score;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id")
     @JsonIgnoreProperties({"membres","proprietaire","hibernateLazyInitializer","handler"})
     private Groupe groupe;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utilisateur_id")
     @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
     private Utilisateur utilisateur;
