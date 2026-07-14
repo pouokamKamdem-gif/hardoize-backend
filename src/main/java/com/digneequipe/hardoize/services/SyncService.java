@@ -362,14 +362,17 @@ public class SyncService {
                 d.setUtilisateur(user);
                 resolveGroupe(m, d, idMap);
                 // Client FK
+                final Dette dette = d;
+
                 resolveFk(m,"clientUuid", idMap,
-                    id -> clientRepo.findById(id).ifPresent(d::setClient),
-                    u  -> clientRepo.findByUuid(u).ifPresent(d::setClient));
-                // Vente FK
+                        id -> clientRepo.findById(id).ifPresent(dette::setClient),
+                        u  -> clientRepo.findByUuid(u).ifPresent(dette::setClient));
+
                 resolveFk(m,"venteUuid", idMap,
-                    id -> venteRepo.findById(id).ifPresent(d::setVente),
-                    u  -> venteRepo.findByUuid(u).ifPresent(d::setVente));
-                d = detteRepo.save(d);
+                        id -> venteRepo.findById(id).ifPresent(dette::setVente),
+                        u  -> venteRepo.findByUuid(u).ifPresent(dette::setVente));
+
+                d = detteRepo.save(dette);
                 idMap.put(uuid, d.getId());
                 n++;
             } catch (Exception e) {
@@ -399,10 +402,13 @@ public class SyncService {
                 df.setDateRemboursement(dt(m,"dateRemboursement"));
                 df.setPaiementsJson(s(m,"paiementsJson"));
                 resolveGroupe(m, df, idMap);
+                final DetteFournisseur detteFournisseur = df;
+
                 resolveFk(m,"fournisseurUuid", idMap,
-                    id -> fournisseurRepo.findById(id).ifPresent(df::setFournisseur),
-                    u  -> fournisseurRepo.findByUuid(u).ifPresent(df::setFournisseur));
-                df = detteFournisseurRepo.save(df);
+                        id -> fournisseurRepo.findById(id).ifPresent(detteFournisseur::setFournisseur),
+                        u  -> fournisseurRepo.findByUuid(u).ifPresent(detteFournisseur::setFournisseur));
+
+                df = detteFournisseurRepo.save(detteFournisseur);
                 idMap.put(uuid, df.getId());
                 n++;
             } catch (Exception e) {
