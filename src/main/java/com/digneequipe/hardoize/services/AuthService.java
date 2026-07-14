@@ -117,7 +117,6 @@ public class AuthService {
                 .email(u.getEmail())
                 .role(u.getRole())
                 .photoUri(u.getPhotoUri())
-                .evaluation(u.getEvaluation().floatValue())
                 .estActif(u.getEstActif())
                 .createdAt(u.getCreatedAt())
                 .build();
