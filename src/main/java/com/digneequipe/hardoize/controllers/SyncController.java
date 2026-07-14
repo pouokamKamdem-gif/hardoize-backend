@@ -17,25 +17,31 @@ public class SyncController {
 
     private final SyncService syncService;
 
-    // POST /api/sync/batch
-    // Reçoit toutes les données à synchroniser en une seule requête
+    // POST /api/sync/batch — Mode Solo
+    // Le frontend envoie tout en une fois, on stocke sans vérifier
     @PostMapping("/batch")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> syncBatch(
+    public ResponseEntity<ApiResponse<Map<String,Object>>> syncBatch(
             @RequestBody SyncBatchRequest request,
             Authentication auth) {
-
-        Map<String, Object> result = syncService.syncBatch(
-                request, auth.getName()
-        );
-        return ResponseEntity.ok(ApiResponse.ok("Sync réussie", result));
+        try {
+            Map<String,Object> result = syncService.syncBatch(
+                request, auth.getName());
+            return ResponseEntity.ok(
+                ApiResponse.ok("Sync réussie", result));
+        } catch (Exception e) {
+            return ResponseEntity.ok(
+                ApiResponse.error("Erreur sync: " + e.getMessage()));
+        }
     }
 
-    // GET /api/sync/status/{uuid}
-    // Vérifie si un UUID existe déjà côté serveur
-    @GetMapping("/status/{uuid}")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> checkUuid(
+    // GET /api/sync/check/{uuid} — Vérifier si UUID existe
+    @GetMapping("/check/{uuid}")
+    public ResponseEntity<ApiResponse<Map<String,Object>>> check(
             @PathVariable String uuid) {
-        Map<String, Object> status = syncService.checkUuid(uuid);
-        return ResponseEntity.ok(ApiResponse.ok(status));
+        Map<String,Object> result = Map.of(
+            "uuid",   uuid,
+            "existe", syncService.existsByUuid(uuid)
+        );
+        return ResponseEntity.ok(ApiResponse.ok(result));
     }
 }

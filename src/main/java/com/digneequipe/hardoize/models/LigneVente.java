@@ -6,16 +6,12 @@ import lombok.*;
 
 @Entity
 @Table(name = "lignes_ventes")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class LigneVente extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,12 +24,8 @@ public class LigneVente extends BaseEntity {
     @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Produit produit;
 
-    @Column(nullable = false)
-    private String nomProduit;
-
-    @Column(nullable = false)
-    private Integer quantite;
-
+    @Column(nullable = false) private String  nomProduit;
+    @Column(nullable = false) private Integer quantite;
     @Builder.Default private Double prixAchat    = 0.0;
     @Builder.Default private Double prixUnitaire = 0.0;
     @Builder.Default private Double sousTotal    = 0.0;

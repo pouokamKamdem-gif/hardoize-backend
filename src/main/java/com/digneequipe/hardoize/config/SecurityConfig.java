@@ -25,27 +25,16 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .authorizeHttpRequests(auth -> auth
-                        // Routes publiques (pas besoin de token)
-                        .requestMatchers(
-                                "/",
-                                "/api/auth/login",
-                                "/api/auth/register",
-                                "/api/auth/refresh",
-                                "/api/health",
-                                "/rejoindre"
-                        ).permitAll()
-                        // Toutes les autres routes nécessitent un token JWT
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
+        http.csrf(csrf -> csrf.disable())
+            .sessionManagement(s -> s.sessionCreationPolicy(STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/api/auth/**",
+                    "/api/health"
+                ).permitAll()
+                .anyRequest().authenticated()  // sync nécessite JWT
+            )
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

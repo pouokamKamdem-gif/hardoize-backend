@@ -7,28 +7,23 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "dettes_fournisseurs")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class DetteFournisseur extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fournisseur_id", nullable = false)
+    @JoinColumn(name = "fournisseur_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Fournisseur fournisseur;
 
-    private String nomFournisseur;
+    private String  nomFournisseur;
 
     @Column(nullable = false)
     private Double montantTotal;
-
     @Builder.Default private Double montantRembourse = 0.0;
     @Builder.Default private Double montantRestant   = 0.0;
 
@@ -37,18 +32,18 @@ public class DetteFournisseur extends BaseEntity {
     private String lignesJson;
     private String paiementsJson;
 
-    @Builder.Default
-    private String statut = "active";
+    @Builder.Default private String statut = "active";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id")
-    @JsonIgnoreProperties({"membres","proprietaire","hibernateLazyInitializer","handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Groupe groupe;
 
     @PrePersist
     @Override
     protected void onCreate() {
         super.onCreate();
-        montantRestant = montantTotal;
+        if (montantRestant == null || montantRestant == 0.0)
+            montantRestant = montantTotal;
     }
 }

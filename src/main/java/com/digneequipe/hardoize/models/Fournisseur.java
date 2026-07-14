@@ -6,31 +6,24 @@ import lombok.*;
 
 @Entity
 @Table(name = "fournisseurs")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class Fournisseur extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String nom;
-
+    @Column(nullable = false) private String nom;
     private String telephone;
     private String email;
     private String adresse;
     private String photoUri;
 
+    @Builder.Default private Boolean estActif = true;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id")
-    @JsonIgnoreProperties({"membres","proprietaire","hibernateLazyInitializer","handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Groupe groupe;
-
-    @Builder.Default
-    private Boolean estActif = true;
 }

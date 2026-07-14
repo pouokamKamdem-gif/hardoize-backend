@@ -6,16 +6,12 @@ import lombok.*;
 
 @Entity
 @Table(name = "mouvements_stock")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class MouvementStock extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -23,20 +19,14 @@ public class MouvementStock extends BaseEntity {
     @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Produit produit;
 
-    private String nomProduit;
-
-    @Column(nullable = false)
-    private String type;
-
+    private String  nomProduit;
+    @Column(nullable = false) private String  type;
     private String  motif;
-
-    @Column(nullable = false)
-    private Integer quantite;
+    @Column(nullable = false) private Integer quantite;
 
     @Builder.Default private Double prixUnitaire = 0.0;
     @Builder.Default private Double montantTotal  = 0.0;
     @Builder.Default private Double montantPaye   = 0.0;
-
     private String modePaiement;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -46,11 +36,11 @@ public class MouvementStock extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utilisateur_id")
-    @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Utilisateur utilisateur;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id")
-    @JsonIgnoreProperties({"membres","proprietaire","hibernateLazyInitializer","handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Groupe groupe;
 }

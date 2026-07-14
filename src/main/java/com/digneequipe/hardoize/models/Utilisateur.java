@@ -7,16 +7,12 @@ import lombok.*;
 
 @Entity
 @Table(name = "utilisateurs")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class Utilisateur extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -36,12 +32,5 @@ public class Utilisateur extends BaseEntity {
     private String photoUri;
 
     @Builder.Default
-    private Double evaluation = 5.0;
-
-    @Builder.Default
     private Boolean estActif = true;
-
-    @OneToMany(mappedBy = "proprietaire", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private java.util.List<Groupe> groupes;
 }

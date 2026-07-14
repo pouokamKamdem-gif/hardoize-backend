@@ -6,16 +6,12 @@ import lombok.*;
 
 @Entity
 @Table(name = "produits")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class Produit extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -23,17 +19,11 @@ public class Produit extends BaseEntity {
 
     private String categorie;
 
-    @Builder.Default
-    private Double prixAchat = 0.0;
-
+    @Builder.Default private Double  prixAchat     = 0.0;
     @Column(nullable = false)
-    private Double prixVente;
-
-    @Builder.Default
-    private Integer quantiteStock = 0;
-
-    @Builder.Default
-    private Integer stockMinimum = 5;
+    private Double  prixVente;
+    @Builder.Default private Integer quantiteStock = 0;
+    @Builder.Default private Integer stockMinimum  = 5;
 
     private String photoUri;
 
@@ -44,14 +34,13 @@ public class Produit extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id")
-    @JsonIgnoreProperties({"membres","proprietaire","hibernateLazyInitializer","handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Groupe groupe;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utilisateur_id")
-    @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Utilisateur utilisateur;
 
-    @Builder.Default
-    private Boolean estActif = true;
+    @Builder.Default private Boolean estActif = true;
 }

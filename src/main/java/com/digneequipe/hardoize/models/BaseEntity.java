@@ -1,19 +1,16 @@
 package com.digneequipe.hardoize.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @MappedSuperclass
 @Getter
 @Setter
 public abstract class BaseEntity {
 
-    // UUID généré côté frontend et envoyé au backend
-    // Permet la sync sans conflit d'ID
+    // UUID généré côté frontend — clé de déduplication
     @Column(unique = true, nullable = false, updatable = false)
     private String uuid;
 
@@ -25,9 +22,7 @@ public abstract class BaseEntity {
 
     @PrePersist
     protected void onCreate() {
-        if (uuid == null) {
-            uuid = UUID.randomUUID().toString();
-        }
+        if (uuid == null) uuid = java.util.UUID.randomUUID().toString();
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }

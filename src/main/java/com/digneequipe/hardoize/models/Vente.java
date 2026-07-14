@@ -4,21 +4,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "ventes")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class Vente extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToMany(mappedBy = "vente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -29,24 +24,21 @@ public class Vente extends BaseEntity {
     @Column(nullable = false)
     private Double montantTotal;
 
-    @Builder.Default
-    private Double beneficeNet = 0.0;
-
-    @Builder.Default
-    private String typePaiement = "especes";
+    @Builder.Default private Double beneficeNet  = 0.0;
+    @Builder.Default private String typePaiement = "especes";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
-    @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Client client;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utilisateur_id")
-    @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Utilisateur utilisateur;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_id")
-    @JsonIgnoreProperties({"membres","proprietaire","hibernateLazyInitializer","handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Groupe groupe;
 }

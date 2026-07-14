@@ -4,20 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.List;
 
 @Entity
 @Table(name = "groupes")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
 @EqualsAndHashCode(callSuper = false)
 @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class Groupe extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -27,7 +22,7 @@ public class Groupe extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "proprietaire_id")
-    @JsonIgnoreProperties({"groupes","hibernateLazyInitializer","handler"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     private Utilisateur proprietaire;
 
     @Column(unique = true)
@@ -41,7 +36,7 @@ public class Groupe extends BaseEntity {
     @Builder.Default
     private Boolean estActif = true;
 
-    @OneToMany(mappedBy = "groupe", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<MembreGroupe> membres;
+    // MODE : "solo" | "multi"
+    @Builder.Default
+    private String mode = "solo";
 }
