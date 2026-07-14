@@ -1,6 +1,7 @@
 package com.digneequipe.hardoize.models;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @Getter
 @Setter
+@Builder
 public abstract class BaseEntity {
 
     // UUID généré côté frontend — clé de déduplication
