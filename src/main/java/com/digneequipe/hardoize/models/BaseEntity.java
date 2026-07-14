@@ -29,7 +29,6 @@ public abstract class BaseEntity {
 
     @PrePersist
     protected void onCreate() {
-        if (uuid == null) uuid = java.util.UUID.randomUUID().toString();
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
