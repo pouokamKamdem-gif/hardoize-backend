@@ -31,6 +31,7 @@ public class SyncService {
     private final MouvementStockRepository mouvementRepo;
     private final HistoriqueVenteRepository  historiqueVenteRepo;
     private final HistoriquePaiementRepository historiquePaiementRepo;
+    private final UniteProduitRepository uniteProduitRepo;
 
     // ── Helpers ────────────────────────────────────────────────
     private String  s(Map<String,Object> m, String k) {
@@ -75,6 +76,7 @@ public class SyncService {
         total += syncMembres(req.getMembres(), user, idMap);
         total += syncFournisseurs(req.getFournisseurs(), user, idMap);
         total += syncProduits(req.getProduits(), user, idMap);
+        total += syncUnitesProduit(req.getUnitesProduit(), idMap);
         total += syncClients(req.getClients(), user, idMap);
         total += syncVentesEtLignes(req.getVentes(), req.getLignesVentes(), user, idMap);
         total += syncDettes(req.getDettes(), user, idMap);
@@ -509,6 +511,49 @@ public class SyncService {
         return n;
     }
 
+    // Méthode syncUnitesProduit :
+    private int syncUnitesProduit(List<Map<String, Object>> items,
+                                  Map<String, Long> idMap) {
+        if (items == null) return 0;
+        int n = 0;
+        for (Map<String, Object> m : items) {
+            String uuid = s(m, "uuid");
+            if (uuid == null) continue;
+            try {
+                UniteProduit u = uniteProduitRepo.findByUuid(uuid)
+                        .orElse(UniteProduit.builder().uuid(uuid).build());
+
+                u.setNom(s(m, "nom"));
+                u.setFacteur(d(m, "facteur") != null
+                        ? d(m, "facteur") : 1.0);
+                u.setPrixAchat(d(m, "prixAchat") != null
+                        ? d(m, "prixAchat") : 0.0);
+                u.setPrixVente(d(m, "prixVente") != null
+                        ? d(m, "prixVente") : 0.0);
+                u.setEstBase(b(m, "estBase") != null
+                        && b(m, "estBase"));
+                u.setOrdre(i(m, "ordre") != null
+                        ? i(m, "ordre") : 0);
+
+                // Résoudre produit FK via uuid
+                String pUuid = s(m, "produitUuid");
+                if (pUuid != null) {
+                    Long pId = idMap.get(pUuid);
+                    if (pId != null)
+                        produitRepo.findById(pId).ifPresent(u::setProduit);
+                    else
+                        produitRepo.findByUuid(pUuid).ifPresent(u::setProduit);
+                }
+
+                uniteProduitRepo.save(u);
+                n++;
+            } catch (Exception e) {
+                log.error("Sync unité produit uuid={}: {}",
+                        uuid, e.getMessage());
+            }
+        }
+        return n;
+    }
     // ── Helpers FK ─────────────────────────────────────────────
     private double dOrZero(Map<String,Object> m, String k) {
         Double v = d(m,k); return v != null ? v : 0.0;

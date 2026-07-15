@@ -8,6 +8,7 @@ public class SyncBatchRequest {
     private List<Map<String, Object>> groupes;
     private List<Map<String, Object>> membres;
     private List<Map<String, Object>> permissions;
+    private List<Map<String, Object>> unitesProduit;
     private List<Map<String, Object>> fournisseurs;
     private List<Map<String, Object>> produits;
     private List<Map<String, Object>> clients;
