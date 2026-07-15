@@ -24,6 +24,9 @@ public class Utilisateur extends BaseEntity {
 
     private String email;
 
+    @Builder.Default
+    private Double evaluation = 5.0;
+
     @JsonIgnore
     private String motDePasse;
 
