@@ -14,4 +14,7 @@ public interface MembreGroupeRepository extends JpaRepository<MembreGroupe, Long
         List<MembreGroupe> findByGroupeId(Long groupeId);
         Optional<MembreGroupe> findByGroupeIdAndUtilisateurId(Long groupeId, Long utilisateurId);
         long countByGroupeId(Long groupeId);
-    }
+
+        Optional<MembreGroupe> findByGroupeIdAndTelephone(
+                Long groupeId, String telephone);
+ }
