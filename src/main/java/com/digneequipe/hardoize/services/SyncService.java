@@ -520,23 +520,19 @@ public class SyncService {
             String uuid = s(m, "uuid");
             if (uuid == null) continue;
             try {
+                // findByUuid = upsert idempotent
                 UniteProduit u = uniteProduitRepo.findByUuid(uuid)
                         .orElse(UniteProduit.builder().uuid(uuid).build());
 
                 u.setNom(s(m, "nom"));
-                u.setFacteur(d(m, "facteur") != null
-                        ? d(m, "facteur") : 1.0);
-                u.setPrixAchat(d(m, "prixAchat") != null
-                        ? d(m, "prixAchat") : 0.0);
-                u.setPrixVente(d(m, "prixVente") != null
-                        ? d(m, "prixVente") : 0.0);
-                u.setEstBase(b(m, "estBase") != null
-                        && b(m, "estBase"));
-                u.setOrdre(i(m, "ordre") != null
-                        ? i(m, "ordre") : 0);
+                u.setFacteur(d(m, "facteur") != null ? d(m,"facteur") : 1.0);
+                u.setPrixAchat(d(m, "prixAchat") != null ? d(m,"prixAchat") : 0.0);
+                u.setPrixVente(d(m, "prixVente") != null ? d(m,"prixVente") : 0.0);
+                u.setEstBase(b(m, "estBase") != null && b(m,"estBase"));
+                u.setEstReference(b(m,"estReference") != null && b(m,"estReference"));
+                u.setOrdre(i(m,"ordre") != null ? i(m,"ordre") : 0);
 
-                // Résoudre produit FK via uuid
-                String pUuid = s(m, "produitUuid");
+                String pUuid = s(m,"produitUuid");
                 if (pUuid != null) {
                     Long pId = idMap.get(pUuid);
                     if (pId != null)
@@ -544,12 +540,10 @@ public class SyncService {
                     else
                         produitRepo.findByUuid(pUuid).ifPresent(u::setProduit);
                 }
-
                 uniteProduitRepo.save(u);
                 n++;
             } catch (Exception e) {
-                log.error("Sync unité produit uuid={}: {}",
-                        uuid, e.getMessage());
+                log.error("Sync unité produit uuid={}: {}", uuid, e.getMessage());
             }
         }
         return n;

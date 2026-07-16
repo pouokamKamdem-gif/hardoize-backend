@@ -31,4 +31,11 @@ public class LigneVente extends BaseEntity {
     @Builder.Default private Double prixUnitaire = 0.0;
     @Builder.Default private Double sousTotal    = 0.0;
     @Builder.Default private Double marge        = 0.0;
+
+    @Builder.Default
+    private String  uniteNom     = "pcs";
+    @Builder.Default
+    private Double  uniteFacteur = 1.0;
+    @Builder.Default
+    private Boolean prixModifie  = false;
 }

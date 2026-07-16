@@ -38,4 +38,7 @@ public class UniteProduit extends BaseEntity {
 
     @Builder.Default
     private Integer ordre     = 0;
+
+    @Builder.Default
+    private Boolean estReference = false;
 }
