@@ -1,16 +1,10 @@
 package com.digneequipe.hardoize.dto.request;
 
-import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.Data;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class AuthRequest {
-
-    @NotBlank(message = "Le téléphone est obligatoire")
+    private String nom;
     private String telephone;
-
-    @NotBlank(message = "Le mot de passe est obligatoire")
     private String motDePasse;
 }
