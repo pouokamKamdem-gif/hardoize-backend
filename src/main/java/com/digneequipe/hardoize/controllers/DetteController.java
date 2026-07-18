@@ -3,15 +3,21 @@ package com.digneequipe.hardoize.controllers;
 import com.digneequipe.hardoize.dto.request.*;
 import com.digneequipe.hardoize.dto.response.ApiResponse;
 import com.digneequipe.hardoize.models.Dette;
+<<<<<<< Updated upstream
 import com.digneequipe.hardoize.services.DetteService;
 import jakarta.validation.Valid;
+=======
+>>>>>>> Stashed changes
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+<<<<<<< Updated upstream
 import java.util.List;
+=======
+>>>>>>> Stashed changes
 import java.util.Map;
 
 @RestController

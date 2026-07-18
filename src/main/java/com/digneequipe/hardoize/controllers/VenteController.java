@@ -2,16 +2,22 @@ package com.digneequipe.hardoize.controllers;
 
 import com.digneequipe.hardoize.dto.request.VenteRequest;
 import com.digneequipe.hardoize.dto.response.ApiResponse;
+<<<<<<< Updated upstream
 import com.digneequipe.hardoize.models.Vente;
 import com.digneequipe.hardoize.services.VenteService;
 import jakarta.validation.Valid;
+=======
+>>>>>>> Stashed changes
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+<<<<<<< Updated upstream
 import java.util.HashMap;
 import java.util.List;
+=======
+>>>>>>> Stashed changes
 import java.util.Map;
 
 @RestController

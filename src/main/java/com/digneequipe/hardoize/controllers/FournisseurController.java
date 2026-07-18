@@ -3,8 +3,11 @@ package com.digneequipe.hardoize.controllers;
 import com.digneequipe.hardoize.dto.request.*;
 import com.digneequipe.hardoize.dto.response.ApiResponse;
 import com.digneequipe.hardoize.models.*;
+<<<<<<< Updated upstream
 import com.digneequipe.hardoize.services.FournisseurService;
 import jakarta.validation.Valid;
+=======
+>>>>>>> Stashed changes
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

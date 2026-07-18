@@ -1,5 +1,8 @@
-package com.digneequipe.hardoize.controllers;
+  const renderProduit = ({ item }) => {
+    const ligneExistante  = panier.find((l) => l.produit.id === item.id);
+    const qteSelectionnee = ligneExistante?.quantite || 0;
 
+<<<<<<< Updated upstream
 import com.digneequipe.hardoize.dto.request.*;
 import com.digneequipe.hardoize.dto.response.ApiResponse;
 import com.digneequipe.hardoize.models.Produit;
@@ -13,12 +16,26 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+=======
+    const couleurStock =
+      item.quantiteStock <= 0 ? COLORS.SCORE_ROUGE :
+      item.quantiteStock <= item.stockMinimum ? COLORS.SCORE_ORANGE :
+      COLORS.SCORE_VERT;
 
-@RestController
-@RequestMapping("/api/produits")
-@RequiredArgsConstructor
-public class ProduitController {
+    const contenuCarte = (
+      <>
+        {/* Voile sombre pour lisibilité du texte sur la photo */}
+        <View style={styles.produitOverlay} />
+>>>>>>> Stashed changes
 
+        {/* Badge quantité sélectionnée */}
+        {qteSelectionnee > 0 && (
+          <View style={styles.badgeQte}>
+            <Text style={styles.badgeQteTexte}>x{qteSelectionnee}</Text>
+          </View>
+        )}
+
+<<<<<<< Updated upstream
     private final ProduitService produitService;
 
     // GET /api/produits?groupeId=1
@@ -58,3 +75,58 @@ public class ProduitController {
         }
     }
 }
+=======
+        {/* Stock haut droite, avec fond pour lisibilité */}
+        <View style={styles.stockBadge}>
+          <Text style={[styles.produitStock, { color: couleurStock }]}>
+            {item.quantiteStock}
+          </Text>
+        </View>
+
+        {/* Bandeau bas : nom + prix sur fond semi-opaque */}
+        <View style={styles.produitInfoBandeau}>
+          <Text style={styles.produitNom} numberOfLines={2}>
+            {item.nom}
+          </Text>
+          <Text style={styles.produitPrix}>
+            {formatFCFA(item.prixVente)}
+          </Text>
+        </View>
+      </>
+    );
+
+    return (
+      <TouchableOpacity
+        style={[
+          styles.produitCard,
+          {
+            borderWidth: qteSelectionnee > 0 ? 2 : 0,
+            borderColor: COLORS.ORANGE,
+            opacity: item.quantiteStock <= 0 ? 0.5 : 1,
+          },
+        ]}
+        onPress={() => handleTapProduit(item)}
+        onLongPress={() => handleTapLongProduit(item)}
+        activeOpacity={0.85}
+        disabled={item.quantiteStock <= 0}
+      >
+        {item.photoUri ? (
+          <ImageBackground
+            source={{ uri: item.photoUri }}
+            style={styles.produitImageFond}
+            imageStyle={{ borderRadius: 14 }}
+          >
+            {contenuCarte}
+          </ImageBackground>
+        ) : (
+          <View style={[styles.produitImageFond, { backgroundColor: cardCouleur }]}>
+            <View style={styles.produitIconeFallback}>
+              <Text style={{ fontSize: 30 }}>🛒</Text>
+            </View>
+            {contenuCarte}
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  };
+>>>>>>> Stashed changes

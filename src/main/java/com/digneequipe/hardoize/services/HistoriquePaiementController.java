@@ -1,10 +1,6 @@
-package com.digneequipe.hardoize.controllers;
+package com.digneequipe.hardoize.services;
 
 import com.digneequipe.hardoize.models.HistoriquePaiement;
-<<<<<<< Updated upstream
-import com.digneequipe.hardoize.services.HistoriquePaiementService;
-=======
->>>>>>> Stashed changes
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

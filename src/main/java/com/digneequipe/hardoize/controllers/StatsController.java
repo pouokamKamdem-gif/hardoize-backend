@@ -1,7 +1,10 @@
 package com.digneequipe.hardoize.controllers;
 
 import com.digneequipe.hardoize.dto.response.*;
+<<<<<<< Updated upstream
 import com.digneequipe.hardoize.services.StatsService;
+=======
+>>>>>>> Stashed changes
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

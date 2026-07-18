@@ -2,7 +2,10 @@ package com.digneequipe.hardoize.controllers;
 
 import com.digneequipe.hardoize.dto.response.ApiResponse;
 import com.digneequipe.hardoize.models.PermissionMembre;
+<<<<<<< Updated upstream
 import com.digneequipe.hardoize.services.PermissionService;
+=======
+>>>>>>> Stashed changes
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

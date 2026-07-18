@@ -43,7 +43,11 @@ public class GroupeService {
                 .nom(request.getNom())
                 .description(request.getDescription())
                 .proprietaire(proprietaire)
+<<<<<<< Updated upstream
                 .codeQR(java.util.UUID.randomUUID().toString())
+=======
+                .codeQR(UUID.randomUUID().toString())
+>>>>>>> Stashed changes
                 .photoUri(request.getPhotoUri())
                 .heureFermeture(request.getHeureFermeture() != null
                         ? request.getHeureFermeture() : "18:00")
