@@ -30,6 +30,9 @@ public class MouvementStock extends BaseEntity {
     @Builder.Default private Double montantPaye   = 0.0;
     private String modePaiement;
 
+    private String NomUnite;
+    private Integer QteUnite;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fournisseur_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})

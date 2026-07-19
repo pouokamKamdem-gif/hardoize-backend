@@ -23,4 +23,6 @@ public interface ProduitRepository extends JpaRepository<Produit, Long> {
         @Modifying
         @Query("UPDATE Produit p SET p.quantiteStock = p.quantiteStock + :qte WHERE p.id = :id")
         void incrementerStock(@Param("id") Long id, @Param("qte") int qte);
+
+        List<Produit> findByGroupeIdAndEstActif(Long groupeId, Boolean estActif);
     }

@@ -1,75 +1,58 @@
 package com.digneequipe.hardoize.controllers;
 
 import com.digneequipe.hardoize.dto.response.ApiResponse;
-import com.digneequipe.hardoize.models.LigneVente;
-import com.digneequipe.hardoize.models.Vente;
-import com.digneequipe.hardoize.repositories.LigneVenteRepository;
-import com.digneequipe.hardoize.repositories.UniteProduitRepository;
-import com.digneequipe.hardoize.repositories.VenteRepository;
+import com.digneequipe.hardoize.services.VenteService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+@RestController
+@RequestMapping("/api/ventes")
+@RequiredArgsConstructor
 public class VenteController {
 
-    private final VenteRepository venteRepo ;
-    private final LigneVenteRepository ligneVenteRepo;
+    private final VenteService venteService;
 
-    public VenteController(VenteRepository venteRepo, LigneVenteRepository ligneVenteRepo) {
-        this.venteRepo = venteRepo;
-        this.ligneVenteRepo = ligneVenteRepo;
+    // Mode Solo : sync sans vérification
+    @PostMapping
+    public ResponseEntity<ApiResponse<Map<String,Object>>> creer(
+            @RequestBody Map<String,Object> body,
+            Authentication auth) {
+        try {
+            return ResponseEntity.ok(ApiResponse.ok(
+                    "Vente enregistrée",
+                    venteService.creerOuMajVente(body, auth.getName())
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    // Mode Multi : avec vérification stock
+    @PostMapping("/multi")
+    public ResponseEntity<ApiResponse<Map<String,Object>>> creerMulti(
+            @RequestBody Map<String,Object> body,
+            Authentication auth) {
+        try {
+            return ResponseEntity.ok(ApiResponse.ok(
+                    "Vente enregistrée",
+                    venteService.enregistrerMulti(body, auth.getName())
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        }
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAll(
+    public ResponseEntity<ApiResponse<List<Map<String,Object>>>> getAll(
             @RequestParam Long groupeId,
-            @RequestParam(defaultValue = "false") boolean avecLignes) {
-
-        List<Vente> ventes =
-                venteRepo.findByGroupeIdOrderByCreatedAtDesc(groupeId);
-        List<Map<String, Object>> result = new ArrayList<>();
-
-        for (Vente v : ventes) {
-            Map<String, Object> dto = new HashMap<>();
-            dto.put("uuid",          v.getUuid());
-            dto.put("id",            v.getId());
-            dto.put("montantTotal",  v.getMontantTotal());
-            dto.put("beneficeNet",   v.getBeneficeNet());
-            dto.put("typePaiement",  v.getTypePaiement());
-            dto.put("clientUuid",    v.getClient() != null
-                    ? v.getClient().getUuid() : null);
-            dto.put("createdAt",     v.getCreatedAt());
-
-            if (avecLignes) {
-                List<LigneVente> lignes =
-                        ligneVenteRepo.findByVenteId(v.getId());
-                List<Map<String, Object>> lignesDto = new ArrayList<>();
-                for (LigneVente l : lignes) {
-                    Map<String, Object> lDto = new HashMap<>();
-                    lDto.put("uuid",         l.getUuid());
-                    lDto.put("produitUuid",  l.getProduit() != null
-                            ? l.getProduit().getUuid() : null);
-                    lDto.put("nomProduit",   l.getNomProduit());
-                    lDto.put("quantite",     l.getQuantite());
-                    lDto.put("uniteNom",     l.getUniteNom());
-                    lDto.put("uniteFacteur", l.getUniteFacteur());
-                    lDto.put("prixAchat",    l.getPrixAchat());
-                    lDto.put("prixUnitaire", l.getPrixUnitaire());
-                    lDto.put("sousTotal",    l.getSousTotal());
-                    lDto.put("marge",        l.getMarge());
-                    lignesDto.add(lDto);
-                }
-                dto.put("lignes", lignesDto);
-            }
-
-            result.add(dto);
-        }
-
-        return ResponseEntity.ok(ApiResponse.ok(result));
+            @RequestParam(defaultValue = "true") boolean avecLignes) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                venteService.getByGroupe(groupeId, avecLignes)
+        ));
     }
 }

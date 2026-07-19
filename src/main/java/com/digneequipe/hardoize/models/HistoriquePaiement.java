@@ -18,7 +18,6 @@ public class HistoriquePaiement extends BaseEntity {
     @Column(nullable = false) private String type;
     @Column(nullable = false) private String sens;
     @Column(nullable = false) private Double montant;
-
     private String description;
     private String nomClient;
     private String nomFournisseur;

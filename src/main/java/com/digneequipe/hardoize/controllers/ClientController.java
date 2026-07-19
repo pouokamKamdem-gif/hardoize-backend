@@ -1,7 +1,7 @@
 package com.digneequipe.hardoize.controllers;
 
 import com.digneequipe.hardoize.dto.response.ApiResponse;
-import com.digneequipe.hardoize.services.ProduitService;
+import com.digneequipe.hardoize.services.ClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/produits")
+@RequestMapping("/api/clients")
 @RequiredArgsConstructor
-public class ProduitController {
+public class ClientController {
 
-    private final ProduitService produitService;
+    private final ClientService clientService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<Map<String,Object>>> creer(
@@ -22,8 +22,8 @@ public class ProduitController {
             Authentication auth) {
         try {
             return ResponseEntity.ok(ApiResponse.ok(
-                    "Produit créé",
-                    produitService.creerOuMettreAJour(body, auth.getName())
+                    "Client créé",
+                    clientService.creerOuMettreAJour(body, auth.getName())
             ));
         } catch (Exception e) {
             return ResponseEntity.ok(ApiResponse.error(e.getMessage()));
@@ -37,8 +37,8 @@ public class ProduitController {
             Authentication auth) {
         try {
             return ResponseEntity.ok(ApiResponse.ok(
-                    "Produit modifié",
-                    produitService.creerOuMettreAJour(body, auth.getName())
+                    "Client modifié",
+                    clientService.creerOuMettreAJour(body, auth.getName())
             ));
         } catch (Exception e) {
             return ResponseEntity.ok(ApiResponse.error(e.getMessage()));
@@ -47,10 +47,9 @@ public class ProduitController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<Map<String,Object>>>> getAll(
-            @RequestParam Long groupeId,
-            @RequestParam(defaultValue = "true") boolean avecUnites) {
+            @RequestParam Long groupeId) {
         return ResponseEntity.ok(ApiResponse.ok(
-                produitService.getByGroupe(groupeId, avecUnites)
+                clientService.getByGroupe(groupeId)
         ));
     }
 }

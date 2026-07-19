@@ -12,4 +12,6 @@ public interface FournisseurRepository extends JpaRepository<Fournisseur, Long> 
         Optional<Fournisseur> findByUuid(String uuid);
         boolean existsByUuid(String uuid);
         List<Fournisseur> findByGroupeId(Long groupeId);
+
+    List<Fournisseur> findByGroupeIdAndEstActif(Long groupeId, Boolean estActif);
     }

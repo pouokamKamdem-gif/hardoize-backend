@@ -12,4 +12,6 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
         Optional<Client> findByUuid(String uuid);
         boolean existsByUuid(String uuid);
         List<Client> findByGroupeId(Long groupeId);
+
+    List<Client> findByGroupeIdAndEstActif(Long groupeId, Boolean estActif);
     }
