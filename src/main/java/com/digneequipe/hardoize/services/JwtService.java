@@ -1,4 +1,4 @@
-package com.digneequipe.hardoize.security;
+package com.digneequipe.hardoize.services;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

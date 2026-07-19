@@ -1,5 +1,6 @@
 package com.digneequipe.hardoize.security;
 
+import com.digneequipe.hardoize.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

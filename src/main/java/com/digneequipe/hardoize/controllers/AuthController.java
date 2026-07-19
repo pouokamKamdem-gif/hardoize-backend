@@ -4,7 +4,7 @@ import com.digneequipe.hardoize.dto.request.AuthRequest;
 import com.digneequipe.hardoize.dto.response.ApiResponse;
 import com.digneequipe.hardoize.models.Utilisateur;
 import com.digneequipe.hardoize.repositories.UtilisateurRepository;
-import com.digneequipe.hardoize.security.JwtService;
+import com.digneequipe.hardoize.services.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
