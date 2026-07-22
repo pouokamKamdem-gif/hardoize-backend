@@ -7,4 +7,5 @@ public class AuthRequest {
     private String nom;
     private String telephone;
     private String motDePasse;
+    private String role;
 }
