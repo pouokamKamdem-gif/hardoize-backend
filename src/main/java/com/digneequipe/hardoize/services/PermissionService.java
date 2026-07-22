@@ -83,4 +83,23 @@ public class PermissionService {
         dto.put("peutVoirHistorique", p.getPeutVoirHistorique());
         return dto;
     }
+
+    // Dans PermissionService.java, ajoute :
+
+    @Transactional
+    public Map<String, Object> modifierParUuid(
+            String membreUuid, Map<String, Boolean> permsBody) {
+
+        MembreGroupe membre = membreRepo.findByUuid(membreUuid)
+                .orElseThrow(() -> new RuntimeException("Membre introuvable"));
+
+        return modifier(membre.getId(), permsBody);
+    }
+
+    public Map<String, Object> getByMembreUuid(String membreUuid) {
+        MembreGroupe membre = membreRepo.findByUuid(membreUuid)
+                .orElseThrow(() -> new RuntimeException("Membre introuvable"));
+
+        return getByMembre(membre.getId());
+    }
 }

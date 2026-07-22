@@ -2,6 +2,7 @@ package com.digneequipe.hardoize.controllers;
 
 import com.digneequipe.hardoize.dto.response.ApiResponse;
 import com.digneequipe.hardoize.services.MultiModeService;
+import com.digneequipe.hardoize.services.PermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,6 +16,7 @@ import java.util.Map;
 public class MultiModeController {
 
     private final MultiModeService multiService;
+    private final PermissionService permissionService;
 
     // POST /api/multi/rejoindre
     @PostMapping("/rejoindre")
@@ -71,12 +73,18 @@ public class MultiModeController {
         ));
     }
 
-    // POST /api/multi/deconnecter/{membreId}
-    @PostMapping("/deconnecter/{membreId}")
+    // POST /api/multi/deconnecter/{membreUuid}
+    @PostMapping("/deconnecter/{membreUuid}")
     public ResponseEntity<ApiResponse<Void>> deconnecter(
-            @PathVariable Long membreId) {
-        multiService.deconnecterMembre(membreId);
-        return ResponseEntity.ok(ApiResponse.ok(null));
+            @PathVariable String membreUuid) {
+        try {
+            // Trouver le membre par UUID
+            multiService.deconnecterMembreParUuid(membreUuid);
+            return ResponseEntity.ok(ApiResponse.ok(null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        }
     }
 
     // GET /api/multi/permissions/membre/{membreId}
@@ -102,14 +110,20 @@ public class MultiModeController {
     // Chemin aligné sur celui utilisé par GroupesScreen.js
     // (sauvegarderPermissions) : auparavant "/permissions/{membreId}",
     // qui ne correspondait à aucun appel réel du frontend.
-    @PutMapping("/permissions/membre/{membreId}")
+// PUT /api/multi/permissions/{membreUuid}
+    @PutMapping("/permissions/{membreUuid}")
     public ResponseEntity<ApiResponse<Map<String,Object>>> permissions(
-            @PathVariable Long membreId,
+            @PathVariable String membreUuid,
             @RequestBody Map<String,Boolean> body) {
-        return ResponseEntity.ok(ApiResponse.ok(
-                "Permissions mises à jour",
-                multiService.modifierPermissions(membreId, body)
-        ));
+        try {
+            return ResponseEntity.ok(ApiResponse.ok(
+                    "Permissions mises à jour",
+                    permissionService.modifierParUuid(membreUuid, body)
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        }
     }
 
     // POST /api/multi/activer/{groupeId}

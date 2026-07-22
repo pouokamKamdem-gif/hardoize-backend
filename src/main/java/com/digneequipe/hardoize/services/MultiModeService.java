@@ -286,4 +286,26 @@ public class MultiModeService {
     private String s(Map<String,Object> m, String k) {
         Object v = m.get(k); return v != null ? v.toString() : null;
     }
+
+    @Transactional
+    public void deconnecterMembreParUuid(String membreUuid) {
+        MembreGroupe membre = membreRepo.findByUuid(membreUuid)
+                .orElseThrow(() -> new RuntimeException("Membre introuvable"));
+
+        membre.setEstConnecte(false);
+        membreRepo.save(membre);
+
+        long nbConnectes = membreRepo
+                .findByGroupeId(membre.getGroupe().getId())
+                .stream()
+                .filter(m -> m.getEstConnecte()
+                        && !"proprietaire".equals(m.getRole()))
+                .count();
+
+        if (nbConnectes == 0) {
+            Groupe g = membre.getGroupe();
+            g.setMode("solo");
+            groupeRepo.save(g);
+        }
+    }
 }

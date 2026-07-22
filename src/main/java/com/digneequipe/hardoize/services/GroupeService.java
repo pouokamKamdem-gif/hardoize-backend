@@ -149,4 +149,112 @@ public class GroupeService {
         dto.put("createdAt",      g.getCreatedAt());
         return dto;
     }
+
+    // Dans GroupeService.java, ajoute ces méthodes :
+
+    @Transactional
+    public Map<String, Object> modifierParUuid(
+            String uuid, Map<String, Object> body, String telephone) {
+
+        Groupe groupe = groupeRepo.findByUuid(uuid)
+                .orElseThrow(() -> new RuntimeException("Groupe introuvable"));
+
+        // Vérifier que c'est bien le propriétaire
+        Utilisateur user = utilisateurRepo.findByTelephone(telephone)
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+
+        if (!groupe.getProprietaire().getId().equals(user.getId())) {
+            throw new RuntimeException("Accès refusé");
+        }
+
+        if (body.containsKey("nom"))
+            groupe.setNom(body.get("nom").toString());
+        if (body.containsKey("description"))
+            groupe.setDescription(body.get("description") != null
+                    ? body.get("description").toString() : null);
+        if (body.containsKey("heureFermeture"))
+            groupe.setHeureFermeture(body.get("heureFermeture").toString());
+
+        groupe = groupeRepo.save(groupe);
+        return buildDto(groupe);
+    }
+
+    public List<Map<String, Object>> getMembresParUuid(
+            String groupeUuid, String telephone) {
+
+        Groupe groupe = groupeRepo.findByUuid(groupeUuid)
+                .orElseThrow(() -> new RuntimeException("Groupe introuvable"));
+
+        // Vérifier accès : propriétaire ou membre du groupe
+        Utilisateur user = utilisateurRepo.findByTelephone(telephone)
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+
+        boolean autorise = groupe.getProprietaire().getId().equals(user.getId())
+                || membreRepo.findByGroupeIdAndTelephone(
+                groupe.getId(), telephone).isPresent();
+
+        if (!autorise) throw new RuntimeException("Accès refusé");
+
+        List<MembreGroupe> membres = membreRepo.findByGroupeId(groupe.getId());
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (MembreGroupe m : membres) {
+            Map<String, Object> dto = new HashMap<>();
+            dto.put("id",               m.getId());
+            dto.put("uuid",             m.getUuid());   // ← UUID
+            dto.put("groupeUuid",       groupe.getUuid()); // ← UUID groupe
+            dto.put("nomAffiche",       m.getNomAffiche());
+            dto.put("telephone",        m.getTelephone());
+            dto.put("role",             m.getRole());
+            dto.put("bailHeure",        m.getBailHeure());
+            dto.put("estConnecte",      m.getEstConnecte());
+            dto.put("connexionPermanente", m.getConnexionPermanente());
+
+            permissionRepo.findByMembreId(m.getId()).ifPresent(p -> {
+                Map<String, Object> perms = new HashMap<>();
+                perms.put("peutVendre",         p.getPeutVendre());
+                perms.put("peutVoirDettes",     p.getPeutVoirDettes());
+                perms.put("peutGererStock",     p.getPeutGererStock());
+                perms.put("peutVoirStats",      p.getPeutVoirStats());
+                perms.put("peutGererClients",   p.getPeutGererClients());
+                perms.put("peutVoirHistorique", p.getPeutVoirHistorique());
+                dto.put("permissions", perms);
+            });
+
+            result.add(dto);
+        }
+        return result;
+    }
+
+    @Transactional
+    public void retirerMembreParUuid(String membreUuid, String telephone) {
+        MembreGroupe membre = membreRepo.findByUuid(membreUuid)
+                .orElseThrow(() -> new RuntimeException("Membre introuvable"));
+
+        // Seul le propriétaire peut retirer un membre
+        Groupe groupe = membre.getGroupe();
+        if (!groupe.getProprietaire().getTelephone().equals(telephone)) {
+            throw new RuntimeException("Seul le propriétaire peut retirer un membre");
+        }
+
+        // Ne pas retirer le propriétaire
+        if ("proprietaire".equals(membre.getRole())) {
+            throw new RuntimeException("Impossible de retirer le propriétaire");
+        }
+
+        membre.setEstActif(false);
+        membre.setEstConnecte(false);
+        membreRepo.save(membre);
+
+        // Si plus aucun vendeur connecté → repasser en solo
+        long nbVendeurs = membreRepo.findByGroupeId(groupe.getId())
+                .stream()
+                .filter(m -> m.getEstActif() && !"proprietaire".equals(m.getRole()))
+                .count();
+
+        if (nbVendeurs == 0) {
+            groupe.setMode("solo");
+            groupeRepo.save(groupe);
+        }
+    }
 }

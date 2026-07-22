@@ -18,6 +18,7 @@ public class GroupeController {
     private final GroupeService     groupeService;
     private final PermissionService permissionService;
 
+    // POST /api/groupes
     @PostMapping
     public ResponseEntity<ApiResponse<Map<String,Object>>> creer(
             @RequestBody Map<String,Object> body,
@@ -33,14 +34,16 @@ public class GroupeController {
         }
     }
 
-    @PutMapping("/{id}")
+    // PUT /api/groupes/{uuid}
+    @PutMapping("/{uuid}")
     public ResponseEntity<ApiResponse<Map<String,Object>>> modifier(
-            @PathVariable Long id,
-            @RequestBody Map<String,Object> body) {
+            @PathVariable String uuid,
+            @RequestBody Map<String,Object> body,
+            Authentication auth) {
         try {
             return ResponseEntity.ok(ApiResponse.ok(
                     "Groupe modifié",
-                    groupeService.modifier(id, body)
+                    groupeService.modifierParUuid(uuid, body, auth.getName())
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest()
@@ -48,6 +51,7 @@ public class GroupeController {
         }
     }
 
+    // GET /api/groupes
     @GetMapping
     public ResponseEntity<ApiResponse<List<Map<String,Object>>>> getAll(
             Authentication auth) {
@@ -56,29 +60,63 @@ public class GroupeController {
         ));
     }
 
-    @GetMapping("/{id}/membres")
+    // GET /api/groupes/{uuid}/membres
+    @GetMapping("/{uuid}/membres")
     public ResponseEntity<ApiResponse<List<Map<String,Object>>>> getMembres(
-            @PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.ok(
-                groupeService.getMembres(id)
-        ));
+            @PathVariable String uuid,
+            Authentication auth) {
+        try {
+            return ResponseEntity.ok(ApiResponse.ok(
+                    groupeService.getMembresParUuid(uuid, auth.getName())
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        }
     }
 
-    @PutMapping("/membres/{membreId}/permissions")
+    // PUT /api/groupes/membres/{membreUuid}/permissions
+    @PutMapping("/membres/{membreUuid}/permissions")
     public ResponseEntity<ApiResponse<Map<String,Object>>> modifierPermissions(
-            @PathVariable Long membreId,
-            @RequestBody Map<String,Boolean> permissions) {
-        return ResponseEntity.ok(ApiResponse.ok(
-                "Permissions mises à jour",
-                permissionService.modifier(membreId, permissions)
-        ));
+            @PathVariable String membreUuid,
+            @RequestBody Map<String,Boolean> permissions,
+            Authentication auth) {
+        try {
+            return ResponseEntity.ok(ApiResponse.ok(
+                    "Permissions mises à jour",
+                    permissionService.modifierParUuid(membreUuid, permissions)
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        }
     }
 
-    @GetMapping("/membres/{membreId}/permissions")
+    // GET /api/groupes/membres/{membreUuid}/permissions
+    @GetMapping("/membres/{membreUuid}/permissions")
     public ResponseEntity<ApiResponse<Map<String,Object>>> getPermissions(
-            @PathVariable Long membreId) {
-        return ResponseEntity.ok(ApiResponse.ok(
-                permissionService.getByMembre(membreId)
-        ));
+            @PathVariable String membreUuid) {
+        try {
+            return ResponseEntity.ok(ApiResponse.ok(
+                    permissionService.getByMembreUuid(membreUuid)
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    // DELETE /api/groupes/membres/{membreUuid}
+    @DeleteMapping("/membres/{membreUuid}")
+    public ResponseEntity<ApiResponse<Void>> retirerMembre(
+            @PathVariable String membreUuid,
+            Authentication auth) {
+        try {
+            groupeService.retirerMembreParUuid(membreUuid, auth.getName());
+            return ResponseEntity.ok(ApiResponse.ok(null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        }
     }
 }
