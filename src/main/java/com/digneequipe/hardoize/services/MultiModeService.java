@@ -190,6 +190,20 @@ public class MultiModeService {
         });
     }
 
+    // ── Lire les permissions d'un membre ──────────────────────
+    // Ajouté : GroupesScreen.js fait un GET /permissions/membre/{id}
+    // pour pré-remplir le modal avant modification ; il n'y avait
+    // pas de méthode correspondante côté service (ni de route côté
+    // contrôleur), donc le frontend retombait toujours sur des
+    // permissions par défaut au lieu des vraies valeurs.
+    public Map<String, Object> getPermissions(Long membreId) {
+        PermissionMembre p = permissionRepo
+                .findByMembreId(membreId)
+                .orElseThrow(() ->
+                        new RuntimeException("Permissions introuvables"));
+        return buildPermissionsDto(p);
+    }
+
     // ── Modifier permissions ──────────────────────────────────
     @Transactional
     public Map<String, Object> modifierPermissions(

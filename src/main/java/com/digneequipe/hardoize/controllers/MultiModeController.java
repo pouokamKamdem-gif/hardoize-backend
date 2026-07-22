@@ -79,8 +79,30 @@ public class MultiModeController {
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
 
-    // PUT /api/multi/permissions/{membreId}
-    @PutMapping("/permissions/{membreId}")
+    // GET /api/multi/permissions/membre/{membreId}
+    // Ajouté : GroupesScreen.js (ouvrirPermissions) appelle ce GET
+    // pour pré-remplir le modal avant modification. Il n'existait
+    // pas encore, donc l'appel échouait systématiquement et le
+    // frontend retombait sur les permissions par défaut au lieu
+    // des vraies valeurs enregistrées.
+    @GetMapping("/permissions/membre/{membreId}")
+    public ResponseEntity<ApiResponse<Map<String,Object>>> getPermissions(
+            @PathVariable Long membreId) {
+        try {
+            return ResponseEntity.ok(ApiResponse.ok(
+                    multiService.getPermissions(membreId)
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    // PUT /api/multi/permissions/membre/{membreId}
+    // Chemin aligné sur celui utilisé par GroupesScreen.js
+    // (sauvegarderPermissions) : auparavant "/permissions/{membreId}",
+    // qui ne correspondait à aucun appel réel du frontend.
+    @PutMapping("/permissions/membre/{membreId}")
     public ResponseEntity<ApiResponse<Map<String,Object>>> permissions(
             @PathVariable Long membreId,
             @RequestBody Map<String,Boolean> body) {
