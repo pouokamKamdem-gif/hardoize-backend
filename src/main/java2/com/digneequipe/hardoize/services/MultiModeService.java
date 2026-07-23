@@ -20,10 +20,6 @@ public class MultiModeService {
     private final PermissionMembreRepository permissionRepo;
     private final UtilisateurRepository      utilisateurRepo;
     private final VenteService               venteService;
-    private final ProduitService             produitService;
-    private final ClientService              clientService;
-    private final DetteService               detteService;
-    private final MouvementStockService      mouvementService;
 
     // ── Rejoindre un groupe via QR ─────────────────────────────
     @Transactional
@@ -177,59 +173,6 @@ public class MultiModeService {
         dashboard.put("groupeUuid", groupe.getUuid());
         dashboard.put("timestamp",  LocalDateTime.now().toString());
         return dashboard;
-    }
-
-    // ── Données complètes du groupe (nouveau membre / nouvel appareil) ──
-    // Utilisé pour la synchronisation initiale d'un nouveau membre ou
-    // d'un nouveau téléphone qui rejoint un groupe : renvoie un instantané
-    // complet des données du groupe, identifié uniquement par uuid (jamais
-    // par id numérique, propre à chaque base locale).
-    public Map<String, Object> getDonneesCompletes(String groupeUuid) {
-        Groupe groupe = groupeRepo.findByUuid(groupeUuid)
-                .orElseThrow(() -> new RuntimeException("Groupe introuvable"));
-
-        Long id = groupe.getId();
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("groupeUuid",      groupe.getUuid());
-        data.put("mode",            groupe.getMode());
-        data.put("produits",        produitService.getByGroupe(id, true));
-        data.put("ventes",          venteService.getByGroupe(id, true));
-        data.put("clients",         clientService.getByGroupe(id));
-        data.put("dettes",          detteService.getByGroupe(id));
-        data.put("mouvementsStock", mouvementService.getByGroupe(id));
-        data.put("timestamp",       LocalDateTime.now().toString());
-        return data;
-    }
-
-    // ── Modifier le rôle d'un membre (par le propriétaire) ────
-    @Transactional
-    public Map<String, Object> modifierRoleMembre(
-            String membreUuid, String nouveauRole, String telephoneAuteur) {
-
-        if (nouveauRole == null || nouveauRole.isBlank())
-            throw new RuntimeException("Rôle invalide");
-
-        MembreGroupe membre = membreRepo.findByUuid(membreUuid)
-                .orElseThrow(() -> new RuntimeException("Membre introuvable"));
-
-        Groupe groupe = membre.getGroupe();
-        if (!groupe.getProprietaire().getTelephone().equals(telephoneAuteur)) {
-            throw new RuntimeException(
-                    "Seul le propriétaire peut modifier le rôle d'un membre");
-        }
-        if ("proprietaire".equals(membre.getRole())) {
-            throw new RuntimeException(
-                    "Impossible de modifier le rôle du propriétaire");
-        }
-
-        membre.setRole(nouveauRole.trim().toLowerCase());
-        membre = membreRepo.save(membre);
-
-        Map<String, Object> dto = new HashMap<>();
-        dto.put("uuid", membre.getUuid());
-        dto.put("role", membre.getRole());
-        return dto;
     }
 
     // ── Déconnecter un membre ─────────────────────────────────

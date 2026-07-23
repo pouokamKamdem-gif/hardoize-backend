@@ -81,43 +81,6 @@ public class MultiModeController {
         }
     }
 
-    // GET /api/multi/donnees-completes/{groupeUuid}
-    // Snapshot complet du groupe (produits, ventes, clients, dettes,
-    // mouvements de stock) — utilisé pour la synchronisation initiale
-    // d'un nouveau membre ou d'un nouveau téléphone qui rejoint le groupe.
-    @GetMapping("/donnees-completes/{groupeUuid}")
-    public ResponseEntity<ApiResponse<Map<String,Object>>> donneesCompletes(
-            @PathVariable String groupeUuid) {
-        try {
-            return ResponseEntity.ok(ApiResponse.ok(
-                    multiService.getDonneesCompletes(groupeUuid)
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
-        }
-    }
-
-    // PUT /api/multi/role/membre/{membreUuid}
-    // Le propriétaire change le rôle d'un membre (vendeur par défaut,
-    // ou toute autre valeur qu'il choisit).
-    @PutMapping("/role/membre/{membreUuid}")
-    public ResponseEntity<ApiResponse<Map<String,Object>>> modifierRole(
-            @PathVariable String membreUuid,
-            @RequestBody Map<String,String> body,
-            Authentication auth) {
-        try {
-            return ResponseEntity.ok(ApiResponse.ok(
-                    "Rôle mis à jour",
-                    multiService.modifierRoleMembre(
-                            membreUuid, body.get("role"), auth.getName())
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
-        }
-    }
-
     // POST /api/multi/deconnecter/{membreUuid}
     @PostMapping("/deconnecter/{membreUuid}")
     public ResponseEntity<ApiResponse<Void>> deconnecter(
