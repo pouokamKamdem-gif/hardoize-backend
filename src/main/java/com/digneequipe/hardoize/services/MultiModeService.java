@@ -82,10 +82,12 @@ public class MultiModeService {
         PermissionMembre perms = permissionRepo
                 .findByMembreId(membre.getId()).orElse(null);
 
+        // Correction : on ne renvoie plus les ids numériques (membreId,
+        // groupeId) — ils sont propres à la base serveur et ne
+        // correspondent à rien côté SQLite local. Seuls les uuid,
+        // identiques partout, doivent être utilisés par l'app.
         Map<String, Object> result = new HashMap<>();
-        result.put("membreId",    membre.getId());
         result.put("membreUuid",  membre.getUuid());
-        result.put("groupeId",    groupe.getId());
         result.put("groupeUuid",  groupe.getUuid());
         result.put("groupeNom",   groupe.getNom());
         result.put("mode",        groupe.getMode());
@@ -95,13 +97,15 @@ public class MultiModeService {
     }
 
     // ── Polling sync 30s ──────────────────────────────────────
-    public Map<String, Object> getSyncData(
-            Long groupeId, String depuis) {
+    public Map<String, Object> getSyncData(String groupeUuid, String depuis) {
+        Groupe groupe = groupeRepo.findByUuid(groupeUuid)
+                .orElseThrow(() -> new RuntimeException("Groupe introuvable"));
+
         Map<String, Object> data = new HashMap<>();
-        data.put("groupeId",  groupeId);
-        data.put("mode",      getMode(groupeId));
-        data.put("timestamp", LocalDateTime.now().toString());
-        data.put("ok",        true);
+        data.put("groupeUuid", groupe.getUuid());
+        data.put("mode",       groupe.getMode());
+        data.put("timestamp",  LocalDateTime.now().toString());
+        data.put("ok",         true);
         return data;
     }
 
@@ -140,14 +144,17 @@ public class MultiModeService {
     }
 
     // ── Dashboard propriétaire ────────────────────────────────
-    public Map<String, Object> getDashboard(Long groupeId) {
-        List<MembreGroupe> membres =
-                membreRepo.findByGroupeId(groupeId);
+    public Map<String, Object> getDashboard(String groupeUuid) {
+        Groupe groupe = groupeRepo.findByUuid(groupeUuid)
+                .orElseThrow(() -> new RuntimeException("Groupe introuvable"));
+
+        List<MembreGroupe> membres = membreRepo.findByGroupeId(groupe.getId());
 
         List<Map<String, Object>> membresDto = new ArrayList<>();
         for (MembreGroupe m : membres) {
             Map<String, Object> dto = new HashMap<>();
-            dto.put("id",          m.getId());
+            // Plus d'"id" numérique exposé : uuid uniquement, seul
+            // identifiant fiable entre le serveur et chaque appareil.
             dto.put("uuid",        m.getUuid());
             dto.put("nomAffiche",  m.getNomAffiche());
             dto.put("telephone",   m.getTelephone());
@@ -161,17 +168,17 @@ public class MultiModeService {
         }
 
         Map<String, Object> dashboard = new HashMap<>();
-        dashboard.put("membres",   membresDto);
-        dashboard.put("mode",      getMode(groupeId));
-        dashboard.put("groupeId",  groupeId);
-        dashboard.put("timestamp", LocalDateTime.now().toString());
+        dashboard.put("membres",    membresDto);
+        dashboard.put("mode",       groupe.getMode());
+        dashboard.put("groupeUuid", groupe.getUuid());
+        dashboard.put("timestamp",  LocalDateTime.now().toString());
         return dashboard;
     }
 
     // ── Déconnecter un membre ─────────────────────────────────
     @Transactional
-    public void deconnecterMembre(Long membreId) {
-        membreRepo.findById(membreId).ifPresent(m -> {
+    public void deconnecterMembre(String membreUuid) {
+        membreRepo.findByUuid(membreUuid).ifPresent(m -> {
             m.setEstConnecte(false);
             membreRepo.save(m);
 
@@ -191,14 +198,11 @@ public class MultiModeService {
     }
 
     // ── Lire les permissions d'un membre ──────────────────────
-    // Ajouté : GroupesScreen.js fait un GET /permissions/membre/{id}
-    // pour pré-remplir le modal avant modification ; il n'y avait
-    // pas de méthode correspondante côté service (ni de route côté
-    // contrôleur), donc le frontend retombait toujours sur des
-    // permissions par défaut au lieu des vraies valeurs.
-    public Map<String, Object> getPermissions(Long membreId) {
+    public Map<String, Object> getPermissions(String membreUuid) {
+        MembreGroupe membre = membreRepo.findByUuid(membreUuid)
+                .orElseThrow(() -> new RuntimeException("Membre introuvable"));
         PermissionMembre p = permissionRepo
-                .findByMembreId(membreId)
+                .findByMembreId(membre.getId())
                 .orElseThrow(() ->
                         new RuntimeException("Permissions introuvables"));
         return buildPermissionsDto(p);
@@ -207,10 +211,12 @@ public class MultiModeService {
     // ── Modifier permissions ──────────────────────────────────
     @Transactional
     public Map<String, Object> modifierPermissions(
-            Long membreId, Map<String, Boolean> body) {
+            String membreUuid, Map<String, Boolean> body) {
 
+        MembreGroupe membre = membreRepo.findByUuid(membreUuid)
+                .orElseThrow(() -> new RuntimeException("Membre introuvable"));
         PermissionMembre p = permissionRepo
-                .findByMembreId(membreId)
+                .findByMembreId(membre.getId())
                 .orElseThrow(() ->
                         new RuntimeException("Permissions introuvables"));
 
@@ -233,25 +239,25 @@ public class MultiModeService {
 
     // ── Passer en mode multi / solo ───────────────────────────
     @Transactional
-    public Map<String, Object> passerEnModeMulti(Long groupeId) {
-        Groupe g = groupeRepo.findById(groupeId)
+    public Map<String, Object> passerEnModeMulti(String groupeUuid) {
+        Groupe g = groupeRepo.findByUuid(groupeUuid)
                 .orElseThrow(() -> new RuntimeException("Groupe introuvable"));
         g.setMode("multi");
         groupeRepo.save(g);
-        return Map.of("groupeId", groupeId, "mode", "multi");
+        return Map.of("groupeUuid", groupeUuid, "mode", "multi");
     }
 
     @Transactional
-    public Map<String, Object> passerEnModeSolo(Long groupeId) {
-        Groupe g = groupeRepo.findById(groupeId)
+    public Map<String, Object> passerEnModeSolo(String groupeUuid) {
+        Groupe g = groupeRepo.findByUuid(groupeUuid)
                 .orElseThrow(() -> new RuntimeException("Groupe introuvable"));
         g.setMode("solo");
         groupeRepo.save(g);
-        return Map.of("groupeId", groupeId, "mode", "solo");
+        return Map.of("groupeUuid", groupeUuid, "mode", "solo");
     }
 
-    public String getMode(Long groupeId) {
-        return groupeRepo.findById(groupeId)
+    public String getMode(String groupeUuid) {
+        return groupeRepo.findByUuid(groupeUuid)
                 .map(Groupe::getMode).orElse("solo");
     }
 
@@ -285,27 +291,5 @@ public class MultiModeService {
 
     private String s(Map<String,Object> m, String k) {
         Object v = m.get(k); return v != null ? v.toString() : null;
-    }
-
-    @Transactional
-    public void deconnecterMembreParUuid(String membreUuid) {
-        MembreGroupe membre = membreRepo.findByUuid(membreUuid)
-                .orElseThrow(() -> new RuntimeException("Membre introuvable"));
-
-        membre.setEstConnecte(false);
-        membreRepo.save(membre);
-
-        long nbConnectes = membreRepo
-                .findByGroupeId(membre.getGroupe().getId())
-                .stream()
-                .filter(m -> m.getEstConnecte()
-                        && !"proprietaire".equals(m.getRole()))
-                .count();
-
-        if (nbConnectes == 0) {
-            Groupe g = membre.getGroupe();
-            g.setMode("solo");
-            groupeRepo.save(g);
-        }
     }
 }
